@@ -1,0 +1,18 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>netcoreapp3.1</TargetFramework>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+      <PlatformTarget>x86</PlatformTarget>
+      <DefineConstants>TRACE</DefineConstants>
+      <OutputPath>D:\Games\SAMP\Server\gamemodes\</OutputPath>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="SampSharp.GameMode" Version="0.9.0" />
+    </ItemGroup>
+
+</Project>
