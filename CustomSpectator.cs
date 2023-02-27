@@ -12,6 +12,7 @@ namespace partymode
         protected Vector3 mainSpectatePosition;
         protected Vector3 mainSpectatePositionLookAt;
         public bool spectatePlayerOnly = false;
+        public bool spectateMapOnly = false;
         private Timer switchTimer;
         public Player currentPlayerSpectating = null;
         private double lookAtZOffset = 0;
@@ -19,7 +20,7 @@ namespace partymode
         public List<Player> getSpectators()
         {
             List<Player> spectators = new List<Player>();
-            foreach (var player in GameMode.players)
+            foreach (var player in GameMode.GetPlayers())
             {
                 if (player.spectator != null && player.IsConnected)
                 {
@@ -32,7 +33,7 @@ namespace partymode
         public List<Player> getNonSpectators()
         {
             List<Player> spectators = new List<Player>();
-            foreach (var player in GameMode.players)
+            foreach (var player in GameMode.GetPlayers())
             {
                 if (player.spectator == null && player.IsConnected)
                 {
@@ -60,19 +61,19 @@ namespace partymode
 
         private void HandleChange(Object sender, ElapsedEventArgs eventArgs)
         {
-            if (currentPlayerSpectating == null || spectatePlayerOnly) {
+            if ((currentPlayerSpectating == null || spectatePlayerOnly) && !spectateMapOnly) {
                 currentPlayerSpectating = PickUpNextPlayerToSpectate();
                 foreach (var spect in getSpectators())
                     if (spect.IsConnected)
                         if (currentPlayerSpectating != null)
                         {
                             SpectatePlayer(spect);
-                            Console.WriteLine("Spectating: " + currentPlayerSpectating.Name + ".");
+                            //Console.WriteLine("Spectating: " + currentPlayerSpectating.Name + ".");
                         }
                         else
                         {
                             SpectateMap(spect);
-                            Console.WriteLine("No1 to spectate.");
+                            //Console.WriteLine("No1 to spectate.");
                         }
             }
             else
@@ -80,7 +81,7 @@ namespace partymode
                 foreach (var spect in getSpectators())
                     if (spect.IsConnected)
                         SpectateMap(spect);
-                Console.WriteLine("Spectating map.");
+                //Console.WriteLine("Spectating map.");
                 currentPlayerSpectating = null;
             }
         }
@@ -93,12 +94,10 @@ namespace partymode
             player.ToggleControllable(false);
             if (currentPlayerSpectating == null)
             {
-                player.SendClientMessage("Map spec");
                 SpectateMap(player);
             }
             else
             {
-                player.SendClientMessage("Player spec");
                 SpectatePlayer(player);
             }
         }
@@ -130,7 +129,7 @@ namespace partymode
         }
         private void SpectateMap(Player player)
         {
-            player.PutCameraBehindPlayer();
+            //player.PutCameraBehindPlayer();
             player.ToggleSpectating(false);
             player.CameraPosition = mainSpectatePosition;
             player.SetCameraLookAt(mainSpectatePositionLookAt);

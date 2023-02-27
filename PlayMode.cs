@@ -1,7 +1,11 @@
 ﻿using SampSharp.GameMode;
+using SampSharp.GameMode.Definitions;
+using SampSharp.GameMode.Display;
+using SampSharp.GameMode.SAMP;
 using SampSharp.GameMode.World;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Timers;
 
@@ -10,23 +14,55 @@ namespace partymode
     public abstract class PlayMode
     {
         public readonly String cmd;
+        protected bool begin = false;
+        private string rules = "";
+        protected CustomSpectator spectator;
+        protected List<Vector3> SpawnPositions;
+        protected bool autoBegin = false;
         protected List<GlobalObject> staticObjects = new List<GlobalObject>();
         protected List<BaseVehicle> staticVehicles = new List<BaseVehicle>();
-        public Vector3 startPosition { get; private set; }
         public Vector3 startRotation { get; private set; }
-        private Timer beginCountDown;
+        private System.Timers.Timer beginCountDown;
         private int beginCountDownCounter;
-        protected CustomSpectator spectator;
+        private int _newRandomSpawnPosition = 0;
+        protected int newRandomSpawnPosition { 
+            get {
+                if (_newRandomSpawnPosition >= SpawnPositions.Count)
+                    _newRandomSpawnPosition = 0;
+                return _newRandomSpawnPosition++;
+            } 
+        }
+        protected int minimumPlayersCount = 0;
+        private double _scoreLimit=-1;
+        public double scoreLimit { get { return _scoreLimit; } set { _scoreLimit = value; } }
+        TextDraw infoTd;
 
-        public PlayMode(String command, CustomSpectator spec, Vector3 startPos, double rotX, double rotY, int randomizePosition = 0)
+        public PlayMode(String command, CustomSpectator spec, string textRules, List<Vector3> startPositions, double rotX, double rotY, int randomizePosition = 0)
         {
             GameMode.playModes.Add(this);
             cmd = command;
-            SetStartPosition(startPos, rotX, rotY, randomizePosition);
+            SetStartPosition(startPositions, rotX, rotY, randomizePosition);
             this.spectator = spec;
-            beginCountDown = new Timer(1000);
+            beginCountDown = new System.Timers.Timer(1000);
             beginCountDown.AutoReset = false;
             beginCountDown.Elapsed += BeginCountDown_Elapsed;
+            rules = textRules;
+            InitializeInfoTD();
+        }
+        private void InitializeInfoTD()
+        {
+            infoTd = TextDraw.Create(TDID.value);
+            infoTd.Hide();
+            infoTd.Alignment = SampSharp.GameMode.Definitions.TextDrawAlignment.Left;
+            infoTd.BackColor = SampSharp.GameMode.SAMP.Color.Black;
+            infoTd.Font = SampSharp.GameMode.Definitions.TextDrawFont.Normal;
+            infoTd.LetterSize = new Vector2(0.35, 1.2);
+            infoTd.ForeColor = SampSharp.GameMode.SAMP.Color.White;
+            infoTd.BoxColor = SampSharp.GameMode.SAMP.Color.Black;
+            infoTd.UseBox = true;
+            infoTd.Text = "";
+            infoTd.Position = new Vector2(250, 120.0);
+            infoTd.Width = 400;
         }
         private void StartCountDown(int timeInSec)
         {
@@ -46,7 +82,8 @@ namespace partymode
                 BasePlayer.GameTextForAll("~g~Start", 3000, 6);
                 beginCountDown.AutoReset = false;
                 beginCountDown.Stop();
-                Begin(GameMode.players);
+                begin = true;
+                Begin(GameMode.GetPlayers());
             }
         }
 
@@ -56,17 +93,9 @@ namespace partymode
             staticObjects.Add(obj);
             return obj;
         }
-        private void SetStartPosition(Vector3 startPos, double rotX, double rotY, int randomize = 0)
+        private void SetStartPosition(List<Vector3> startPositions, double rotX, double rotY, int randomize = 0)
         {
-            double offsetX = 0;
-            double offsetY = 0;
-            if (randomize>0)
-            {
-                var r = new Random();
-                offsetX = (r.NextDouble()-0.5) * randomize * 2;
-                offsetY = (r.NextDouble()-0.5) * randomize * 2;
-            }
-            startPosition = startPos;
+            SpawnPositions = startPositions;
             startRotation = new Vector3(rotX, rotY, 0);
         }
         public List<GlobalObject> getObjects()
@@ -85,7 +114,7 @@ namespace partymode
                 new Vector3(x,y,z), (float)rotation,
                 r.Next(0,127),
                 r.Next(0,127),
-                0);
+                10);
             staticVehicles.Add(car);
             return car;
         }
@@ -94,21 +123,43 @@ namespace partymode
             InitializeStatics();
             foreach (var player in players)
             {
-                player.Position = startPosition;
+                player.Position = SpawnPositions[newRandomSpawnPosition];
                 player.Rotation = startRotation;
+                player.SetSpawnInfo(player.Team, player.Skin, player.Position, player.Rotation.Z);
                 player.ClearPlayer();
+                HideRules(player);
+                DisplayRules(player);
             }
             spectator.Enable();
             OnStart(players);
+            if (autoBegin) RequestBegin(GameMode.GetPlayers(), 0);
         }
+        public void DisplayRules(BasePlayer player)
+        {
+            infoTd.Text = rules;
+            infoTd.Show(player);
+        }
+        public void HideRules(BasePlayer player)
+        {
+            infoTd.Hide(player);
+        }
+        
         public void RequestBegin(List<Player> players, int time)
         {
-            StartCountDown(time);
+            if (GameMode.GetPlayers().Count < minimumPlayersCount)
+            {
+                BasePlayer.SendClientMessageToAll("Nie mozna rozpoczac rozgrywki.");
+                BasePlayer.SendClientMessageToAll("Co najmniej dwóch graczy jest potrzebnych");
+                BasePlayer.SendClientMessageToAll("Oczekiwanie na więcej graczy...");
+                return;
+            }
+            if(time!=0) StartCountDown(time);
         }
         protected virtual void Begin(List<Player> players) { }
         public void Finish(List<Player> players)
         {
             OnEnd(players);
+            begin = false;
             spectator.Disable();
             foreach (var veh in staticVehicles)
             {
@@ -120,6 +171,7 @@ namespace partymode
             }
             staticVehicles.Clear();
             staticObjects.Clear();
+            foreach(var player in players) HideRules(player);
             Abilities.CleanUp();
         }
         public abstract void InitializeStatics();
@@ -127,7 +179,7 @@ namespace partymode
         protected abstract void OnEnd(List<Player> players);
         public virtual void OverwriteDeathBehaviour(Player player) { }
         public virtual bool OverwriteSpawnBehaviour(Player player) {
-            player.Position = startPosition;
+            player.Position = SpawnPositions[newRandomSpawnPosition];
             player.Rotation = startRotation;
             return false; 
         }
@@ -138,6 +190,35 @@ namespace partymode
             if(spectator!=null)
             {
                 spectator.EnableSpectatingForPlayer(player);
+            }
+        }
+        public virtual void StopGamePlay(String reason)
+        {
+            begin = false;
+            if(spectator!=null)
+            {
+                spectator.spectateMapOnly = true;
+                foreach(var player in GameMode.GetPlayers())
+                {
+                    spectator.EnableSpectatingForPlayer(player);
+                    infoTd.Text = reason;
+                    //qinfoTd.Show();
+                }
+            }
+        }
+        public virtual void PlayerScoreChanged(Player player, double newScore)
+        {
+            if (scoreLimit > 0 && newScore >= scoreLimit)
+            {
+                List<Player> SortedList = GameMode.GetPlayers().OrderBy(item => -item.Score).ToList();
+                string reason="";
+                int i = 0;
+                foreach(var pl in SortedList)
+                {
+                    i++;
+                    reason += i.ToString()+". " + pl.Name + "~n~";
+                }
+                StopGamePlay(reason);
             }
         }
     }

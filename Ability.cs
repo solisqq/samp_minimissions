@@ -10,20 +10,28 @@ using SampSharp.GameMode.SAMP;
 
 namespace partymode
 {
-    class TDID
+    public class TDID
     {
         private static int _id;
         public static int value { get { return _id++; } }
     }
     public abstract class Ability
     {
+        public enum AbilityType
+        {
+            VehicleAbility=0,
+            PlayerAbility=1
+        };
         private int keyToActivate;
         private TextDraw td = TextDraw.Create(TDID.value);
         private System.Timers.Timer hideTDTimer = null;
         private CustomPickupFactory pickupFactory;
-        protected Ability(string tdText, CustomPickupFactory.PickupModel model, CustomPickupFactory.PickupType type, int keyActivated = -1) {
+        private AbilityType abtype;
+
+        protected Ability(string tdText, AbilityType atype, CustomPickupFactory.PickupModel model, CustomPickupFactory.PickupType type, int keyActivated = -1) {
 
             keyToActivate = keyActivated;
+            abtype = atype;
             td.Hide();
             td.Alignment = SampSharp.GameMode.Definitions.TextDrawAlignment.Left;
             td.BackColor = Color.Black;
@@ -35,8 +43,8 @@ namespace partymode
             td.Text = tdText;
             td.Position = new Vector2(18.0, 91.0);
             td.Width = 140;
-            if (keyActivated < 0) td.Position = new Vector2(18.0, 91.0);
-            else td.Position = new Vector2(25.0, 91.0);
+            if (keyActivated >= 0) td.Position = new Vector2(18.0, 91.0);
+            else td.Position = new Vector2(18.0, 111.0);
             pickupFactory = new CustomPickupFactory(model,type,
                 new EventHandler<PickUpPickupEventArgs>(delegate (Object o, PickUpPickupEventArgs a)
                 {
@@ -71,18 +79,25 @@ namespace partymode
         {
             if (keyToActivate >= 0)
             {
-                if (player.ability != null) player.ability.DetachFromPlayer(player);
-                player.ability = this;
+                if (abtype == AbilityType.VehicleAbility && player.vability != null) 
+                    player.vability.DetachFromPlayer(player);
+                else if(abtype == AbilityType.PlayerAbility && player.pability != null)
+                    player.pability.DetachFromPlayer(player);
+                if (abtype == AbilityType.VehicleAbility)
+                    player.vability = this;
+                else if (abtype == AbilityType.PlayerAbility)
+                    player.pability = this;
             }
-            else
-            {
-                Activate(player);
-            }
+            else Activate(player);
             OnPickUp(player);
         }
         public void DetachFromPlayer(Player player)
         {
-            if (keyToActivate >= 0) player.ability = null;
+            if (keyToActivate >= 0)
+            {
+                if (abtype == AbilityType.VehicleAbility) player.vability = null;
+                else if (abtype == AbilityType.PlayerAbility) player.pability = null;
+            }
             td.Hide(player);
         }
         public Pickup CreatePickup(Vector3 pos, double respawnAfterMS = -1)
@@ -101,6 +116,7 @@ namespace partymode
     {
         public SpeedUpVAbility() : base(
             "Wcisnij ALT by przyspieszyc!",
+            AbilityType.VehicleAbility,
             CustomPickupFactory.PickupModel.AdrenalinePill,
             CustomPickupFactory.PickupType.VehiclePickup,
             (int)SampSharp.GameMode.Definitions.Keys.Fire){}
@@ -121,6 +137,7 @@ namespace partymode
     {
         public JumpVAbility() : base(
             "Wcisnij ALT by podskoczyc!",
+            AbilityType.VehicleAbility,
             CustomPickupFactory.PickupModel.Tiki,
             CustomPickupFactory.PickupType.VehiclePickup,
             (int)SampSharp.GameMode.Definitions.Keys.Fire) { }
@@ -141,6 +158,7 @@ namespace partymode
     {
         public RepairVAbility() : base(
             "Pancerz pojazdu odnowiony!",
+            AbilityType.VehicleAbility,
             CustomPickupFactory.PickupModel.Armor,
             CustomPickupFactory.PickupType.VehiclePickup)
         { }
@@ -161,21 +179,20 @@ namespace partymode
         {
             public Player Owner;
             public Vector3 Position;
+            private DateTime plantTime;
             public Mine(Player Owner)
             {
                 this.Owner = Owner;
                 Position = Owner.Position;
-                //Owner.
+                plantTime = DateTime.Now; 
             }
 
             public bool CheckActivate(Player player)
             {
                 if (player != Owner)
                 {
-                    //player.SendClientMessage("test1");
-                    if(player.InArea(Position, 5))
+                    if(player.InArea(Position, 5) && DateTime.Now > plantTime.AddMilliseconds(3000))
                     {
-                        player.SendClientMessage("test2");
                         BasePlayer.CreateExplosionForAll(Position, SampSharp.GameMode.Definitions.ExplosionType.LargeVisibleDamage2, 6);
                         return true;
                     }
@@ -188,6 +205,7 @@ namespace partymode
         private List<Mine> mines = new List<Mine>();
         public PlantMineVAbility() : base(
             "ALT by podlozyc mine!",
+            AbilityType.VehicleAbility,
             CustomPickupFactory.PickupModel.GreyBomb,
             CustomPickupFactory.PickupType.VehiclePickup,
             (int)SampSharp.GameMode.Definitions.Keys.Fire)

@@ -9,26 +9,47 @@ namespace partymode
 {
     class DerbyPM : PlayMode
     {
-        private bool begin = false;
         Timer rewardTimer;
         private Abilities.AbilitiesRandomSpawner abilitiesSpawner;
         public DerbyPM() : 
             base(
                 "derby", 
-                new CustomSpectator(new Vector3(2120.6001, -1816.6, 195.39999), 60, 5000), 
-                new Vector3(2120.6001, -1816.6, 195.39999), 
-                0, 0, 1) { 
+                new CustomSpectator(new Vector3(2120.6001, -1816.6, 195.39999), 60, 5000),
+                "Tryb rozgrywki: ~g~Derby ~w~~n~Zrzuć przeciwników z dachu.~n~Wygrywa ten który jak najdłużej utrzyma~n~ się w pojeździe na dachu!",
+                new List<Vector3>
+                {
+                    new Vector3(2120.6001,-1816.6,195.39999),
+                    new Vector3(2121.5,-1815.9,195.3),
+                    new Vector3(2121.5,-1815.9,195.3),
+                    new Vector3(2121.6001,-1813.5,195.3),
+                    new Vector3(2120.6001,-1814.2,195.39999),
+                    new Vector3(2120,-1815.1,195.3),
+                    new Vector3(2121.5,-1814.9,195.3),
+                    new Vector3(2121.3999,-1817.2,195.3),
+                    new Vector3(2121.3999,-1817.2,195.3),
+                    new Vector3(2121.5,-1812.6,195.3),
+                    new Vector3(2119.2,-1812.5,195.3),
+                    new Vector3(2119,-1817.1,195.3),
+                    new Vector3(2119.2,-1815.6,195.3),
+                    new Vector3(2119.3,-1813.7,195.3),
+                    new Vector3(2120.8999,-1811.9,195.3),
+                    new Vector3(2122.3999,-1814.5,195.3),
+                }, 
+                0, 0, 1) 
+        { 
             rewardTimer = new Timer(1000);
             rewardTimer.Elapsed += HandleReward;
+            scoreLimit = 2000;
         }
 
         private void HandleReward(object sender, ElapsedEventArgs e)
         {
-            foreach(var player in GameMode.players)
+            foreach(var player in GameMode.GetPlayers())
             {
-                if(player.IsConnected && player.IsAlive)
+                if(player.IsConnected && player.IsAlive && begin)
                 {
-                    player.GiveMoney(5);
+                    if (player.InAnyVehicle) player.AddScore(7);
+                    else player.AddScore(5);
                 }
             }
         }
@@ -57,7 +78,10 @@ namespace partymode
         public override void OverwriteDeathBehaviour(Player player)
         {
             base.OverwriteDeathBehaviour(player);
-            player.Money -= 50;
+            player.AddScore(-30);
+            foreach (var closePlayer in player.GetCloseByPlayersList(10, true))
+                if (closePlayer!=player)
+                    closePlayer.AddScore(50);
         }
 
         public override void OverwriteKillBehaviour(Player killed, BasePlayer killer)
@@ -68,11 +92,6 @@ namespace partymode
         public override bool OverwriteSpawnBehaviour(Player player)
         {
             base.OverwriteSpawnBehaviour(player);
-            /*if (begin)
-            {
-                TurnOnSpectate(player);
-                return true;
-            }*/
             if(!begin)
             {
                 player.ToggleControllable(false);
@@ -80,20 +99,17 @@ namespace partymode
             }
             return true;
         }
-
         public override void OverwriteUpdateBehaviour(Player player)
         {
             base.OverwriteUpdateBehaviour(player);
             if (player.Position.Z < 180 && player.Position.Z > 130 && player.Health>0)
             {
-                player.SendClientMessage("Dieded");
                 player.Health = 0;
             }
         }
 
         protected override void OnEnd(List<Player> players)
         {
-            begin = false;
             abilitiesSpawner.StopSpawning();
             rewardTimer.Stop();
         }
@@ -103,9 +119,7 @@ namespace partymode
             foreach (var player in players)
             {
                 player.ToggleControllable(false);
-            }
-            begin = false;
-            
+            }  
             
             abilitiesSpawner = new Abilities.AbilitiesRandomSpawner(
                 new[] {
@@ -127,10 +141,9 @@ namespace partymode
             {
                 player.ToggleControllable(true);
             }
-            begin = true;
-            
             abilitiesSpawner.StartSpawning();
             rewardTimer.Start();
         }
+        
     }
 }

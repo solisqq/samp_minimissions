@@ -6,6 +6,7 @@ using SampSharp.GameMode.Display;
 using SampSharp.GameMode.SAMP;
 using SampSharp.GameMode.SAMP.Commands;
 using SampSharp.GameMode.World;
+using SampSharp.GameMode.Events;
 
 namespace partymode
 {
@@ -19,8 +20,8 @@ namespace partymode
 
         private static DerbyPM derbyMode = new DerbyPM();
         private static FreeRoamPM freeMode = new FreeRoamPM();
+        private static HideSeekPlayMode hideSeek = new HideSeekPlayMode();
         public static GameMode gm;
-
         public static object SAMP { get; internal set; }
 
         protected override void OnInitialized(EventArgs e)
@@ -32,16 +33,9 @@ namespace partymode
             playModes.Add(freeMode);
             Console.WriteLine("Party GameMode by SolisQQ. Version: " + version + "A.");
             SetGameModeText("Party mode by SolisQQ");
-            ShowPlayerMarkers(PlayerMarkersMode.Global);
-            ShowNameTags(true);
-            SetNameTagDrawDistance(40.0f);
             EnableStuntBonusForAll(false);
             DisableInteriorEnterExits();
-            Server.SetWeather(2);
-            Server.SetWorldTime(11);
-            UsePlayerPedAnimations();
-            setCurrentMode(derbyMode);
-            
+            setCurrentMode(hideSeek);
         }
         private void createPClasses()
         {
@@ -66,6 +60,7 @@ namespace partymode
         {
             if (currentPlayMode != null) currentPlayMode.Finish(players);
             currentPlayMode = mode;
+            ResetGameWorldToDefault();
             mode.Start(players);
         }
         public bool setCurrentModeByName(String name)
@@ -74,6 +69,23 @@ namespace partymode
             if (mode == null) return false;
             setCurrentMode(mode);
             return true;
+        }
+        private void ResetGameWorldToDefault()
+        {
+            Server.SetWeather(2);
+            Server.SetWorldTime(11);
+            ShowPlayerMarkers(PlayerMarkersMode.Global);
+            ShowNameTags(true);
+            SetNameTagDrawDistance(40.0f);
+            UsePlayerPedAnimations();
+        }
+
+        public static List<Player> GetPlayers()
+        {
+            List<Player> playersToRet = new List<Player>();
+            foreach (var bp in BasePlayer.All)
+                playersToRet.Add((Player)bp);
+            return playersToRet;
         }
     }
 }

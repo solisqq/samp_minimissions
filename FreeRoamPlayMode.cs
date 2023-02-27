@@ -7,13 +7,12 @@ namespace partymode
 {
     class FreeRoamPM : PlayMode
     {
-        List<CustomPickupFactory> pickups = new List<CustomPickupFactory>();
-
         public FreeRoamPM() : 
             base(
                 "freeroam",
                 new CustomSpectator(new Vector3(1588.7, 1611.5, 10.8), 80, 5000),
-                new Vector3(1588.7,1611.5,10.8), 0, 0, 3) {}
+                "Tryb rozgrywki: ~g~Dowolny ~w~~n~zabijaj, zbieraj ukrytą broń~n~wyprobuj pojazdy!",
+                new List<Vector3> { new Vector3(1588.7, 1611.5, 10.8) }, 0, 0, 3) {}
 
         public override void InitializeStatics()
         {
