@@ -18,14 +18,10 @@ namespace partymode
 
         public NativeServer()
         {
-            /*IPAddress ip = IPAddress.Parse(host);*/
-            Console.WriteLine("test3");
             ipep = new IPEndPoint(IPAddress.Any, 1121);
             Running = false;
             clients = new List<NativeClient>();
-
             this.cts = new CancellationTokenSource();
-            Console.WriteLine("test2");
         }
 
         public void Stop()
@@ -35,11 +31,10 @@ namespace partymode
         }
         public async Task Run()
         {
-            Console.WriteLine("test1");
             listener = new TcpListener(ipep);
             listener.Start();
             Running = true;
-            Console.WriteLine("Running native server");
+            Console.WriteLine(DateTime.Now.ToString("MM.yy hh:mm:ss") + ": Running native server.");
             while (Running)
             {
                 var c = await listener.AcceptTcpClientAsync();
@@ -67,7 +62,7 @@ namespace partymode
         {
             var r = new StreamReader(stream);
             var w = new StreamWriter(stream);
-            Console.WriteLine("New client");
+            Console.WriteLine(DateTime.Now.ToString("MM.yy hh:mm:ss") + ": New client");
 /*            while (true)
             {
                 Console.WriteLine("Test");

@@ -7,13 +7,16 @@ using SampSharp.GameMode.SAMP;
 using SampSharp.GameMode.SAMP.Commands;
 using SampSharp.GameMode.World;
 using SampSharp.GameMode.Events;
+using System.IO;
+using System.Reflection;
+using System.Runtime.InteropServices;
 
 namespace partymode
 {
     public class GameMode : BaseMode
     {
         
-        public static float version = 0.1f;
+        public static string version = "0.2309.27";
         public static List<PlayMode> playModes = new List<PlayMode>();
         public static PlayMode currentPlayMode;
         private static DerbyPM derbyMode = new DerbyPM();
@@ -32,7 +35,7 @@ namespace partymode
             playModes.Add(freeMode);
             playModes.Add(hideSeek);
             playModes.Add(lsraceMode);
-            Console.WriteLine("Party GameMode by SolisQQ. Version: " + version + "A.");
+            Console.WriteLine(DateTime.Now.ToString("MM.yy hh:mm:ss") + ": Party GameMode by SolisQQ. Version: " + version+"");
             SetGameModeText("Party mode by SolisQQ");
             EnableStuntBonusForAll(false);
             DisableInteriorEnterExits();

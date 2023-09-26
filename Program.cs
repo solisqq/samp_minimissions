@@ -15,7 +15,6 @@ namespace partymode
 
             NativeServer server = new NativeServer();
             server.Run();
-            Console.WriteLine("test");
         }
     }
 }
