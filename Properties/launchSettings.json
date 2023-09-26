@@ -1,0 +1,9 @@
+{
+  "profiles": {
+    "partymode": {
+      "commandName": "Executable",
+      "executablePath": "G:\\Games\\SAMP\\Server\\samp-server.exe",
+      "workingDirectory": "G:\\Games\\SAMP\\Server"
+    }
+  }
+}

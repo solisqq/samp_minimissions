@@ -1,0 +1,6 @@
+obj/
+bin/
+.vs/
+.git/
+.filenesting.json
+empty.amx

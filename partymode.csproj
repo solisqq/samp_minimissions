@@ -1,0 +1,40 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>netcoreapp3.1</TargetFramework>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+      <PlatformTarget>x86</PlatformTarget>
+      <DefineConstants>TRACE</DefineConstants>
+      <OutputPath>G:\Games\SAMP\Server\gamemodes\</OutputPath>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <Compile Include="Abilities.cs" />
+      <Compile Include="Ability.cs" />
+      <Compile Include="Commands.cs" />
+      <Compile Include="CustomPickupFactory.cs" />
+      <Compile Include="CustomSpectator.cs" />
+      <Compile Include="DerbyPlayMode.cs" />
+      <Compile Include="FreeRoamPlayMode.cs" />
+      <Compile Include="GameMode.cs" />
+      <Compile Include="HideSeekPlayMode.cs" />
+      <Compile Include="KeysID.cs" />
+      <Compile Include="LSLongRacePlayMode.cs" />
+      <Compile Include="NativeServer.cs" />
+      <Compile Include="Player.cs" />
+      <Compile Include="PlayerItem.cs" />
+      <Compile Include="PlayMode.cs" />
+      <Compile Include="Program.cs" />
+      <Compile Include="Race.cs" />
+      <Compile Include="StaticTimer.cs" />
+      <Compile Include="Team.cs" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="SampSharp.GameMode" Version="0.9.0" />
+    </ItemGroup>
+
+</Project>
