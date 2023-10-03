@@ -176,12 +176,11 @@ namespace partymode
         }
         public override void OnRequestClass(RequestClassEventArgs e)
         {
-            base.OnRequestClass(e);
-            Interior = 3;
-            Position = new Vector3(349.0453f, 193.2271f, 1014.1797f);
-            Angle = 286.25f;
-            CameraPosition = new Vector3(352.9164f, 194.5702f, 1014.1875f);
-            SetCameraLookAt(new Vector3(349.0453f, 193.2271f, 1014.1797f));
+            var skin = Database.instance.get<int>("skin", this.Name);
+            var skinId = 1;
+            if (skin.Key != false) skinId = skin.Value;
+            this.SetSpawnInfo(0, skinId, new Vector3(349.0453f, 193.2271f, 1014.1797f), 286.25f);
+            this.Spawn();
         }
         public override void OnEnterVehicle(EnterVehicleEventArgs e)
         {

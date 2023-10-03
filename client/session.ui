@@ -80,32 +80,8 @@ QLineEdit {
        <number>32</number>
       </property>
       <property name="bottomMargin">
-       <number>24</number>
+       <number>12</number>
       </property>
-      <item row="1" column="1">
-       <widget class="QLineEdit" name="loginEdit"/>
-      </item>
-      <item row="2" column="1">
-       <widget class="QLineEdit" name="passEdit">
-        <property name="echoMode">
-         <enum>QLineEdit::Password</enum>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="0">
-       <widget class="QLabel" name="label">
-        <property name="text">
-         <string>Login</string>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="0">
-       <widget class="QLabel" name="label_2">
-        <property name="text">
-         <string>Hasło</string>
-        </property>
-       </widget>
-      </item>
       <item row="0" column="0" colspan="2">
        <widget class="QLabel" name="label_3">
         <property name="styleSheet">
@@ -122,11 +98,106 @@ margin-bottom:4px;</string>
         </property>
        </widget>
       </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="label">
+        <property name="styleSheet">
+         <string notr="true">color: white;
+font-size: 14px;</string>
+        </property>
+        <property name="text">
+         <string>Login</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QLineEdit" name="loginEdit"/>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="label_2">
+        <property name="styleSheet">
+         <string notr="true">color: white;
+font-size: 14px;</string>
+        </property>
+        <property name="text">
+         <string>Hasło</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="QLineEdit" name="passEdit">
+        <property name="echoMode">
+         <enum>QLineEdit::Password</enum>
+        </property>
+       </widget>
+      </item>
       <item row="3" column="0" colspan="2">
        <widget class="QPushButton" name="pushButton">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>32</height>
+         </size>
+        </property>
         <property name="text">
          <string>Zaloguj</string>
         </property>
+       </widget>
+      </item>
+      <item row="4" column="0" colspan="2">
+       <widget class="QWidget" name="widget" native="true">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>0</height>
+         </size>
+        </property>
+        <layout class="QHBoxLayout" name="horizontalLayout">
+         <property name="leftMargin">
+          <number>2</number>
+         </property>
+         <property name="topMargin">
+          <number>2</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
+          <number>0</number>
+         </property>
+         <item alignment="Qt::AlignHCenter|Qt::AlignVCenter">
+          <widget class="QLabel" name="label_4">
+           <property name="styleSheet">
+            <string notr="true">color: rgb(203, 179, 255);
+font-size: 12px;</string>
+           </property>
+           <property name="text">
+            <string>Nie masz jeszcze konta?</string>
+           </property>
+          </widget>
+         </item>
+         <item alignment="Qt::AlignVCenter">
+          <widget class="QPushButton" name="createLinkBtn">
+           <property name="styleSheet">
+            <string notr="true">QPushButton {
+	border: 0;
+	background-color: transparent;
+	text-decoration: underline;
+	font-size: 14px;
+	font-weight: 500;
+	color: rgb(67, 142, 215);
+	padding:0;
+	margin:0;
+}
+QPushButton:hover {
+	color: rgb(87, 162, 255);
+}</string>
+           </property>
+           <property name="text">
+            <string>Stwórz je!</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </widget>
       </item>
      </layout>
