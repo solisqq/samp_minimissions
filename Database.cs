@@ -56,6 +56,18 @@ namespace partymode
                 return false;
             }
         }
+        public KeyValuePair<bool,T> get<T>(string field, string login)
+        {
+            var result = get(new List<string>() { field }, login);
+            if (result.Count == 0) return new KeyValuePair<bool, T>();
+            try
+            {
+                return new KeyValuePair<bool, T>(true, (T)Convert.ChangeType(result["skin"], typeof(T)));
+            } catch (Exception) {
+                return new KeyValuePair<bool, T>();
+            }
+            
+        }
         public Dictionary<string, object> get(List<string> keys, string login)
         {
             Dictionary<string, object> toRet = new Dictionary<string, object>();

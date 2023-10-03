@@ -1,6 +1,6 @@
 #include "session.h"
 #include "ui_session.h"
-
+#include <QDesktopServices>
 #include <connection.h>
 #include <QMessageBox>
 
@@ -18,6 +18,9 @@ Session::Session(QWidget *parent) :
             emit sessionAuthorized(obj.value("login").toString("User"));
         }
         else QMessageBox::warning(this, "Niepoprawne dane", "Twoje hasło bądź login są niepoprawne.");
+    });
+    connect(ui->createLinkBtn, &QPushButton::clicked, this, [](){
+        QDesktopServices::openUrl(QUrl("http://www.solivision.pl/wzg/"));
     });
     //TO REMOVE
     file.open(QFile::ReadWrite);

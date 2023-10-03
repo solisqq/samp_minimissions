@@ -18,7 +18,7 @@ namespace partymode
     public class GameMode : BaseMode
     {
         
-        public static string version = "0.2310.02";
+        public static string version = "0.2310.03";
         public static List<PlayMode> playModes = new List<PlayMode>();
         public static PlayMode currentPlayMode;
         private static DerbyPM derbyMode = new DerbyPM();
