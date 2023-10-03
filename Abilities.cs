@@ -14,6 +14,7 @@ namespace partymode
             public List<Ability> abilitiesToSpawn = new List<Ability>();
             public List<Vector3> positions = new List<Vector3>();
             List<int> availablePositions = new List<int>();
+            int respawnTimeMS = 10000;
             System.Timers.Timer timer;
             public AbilitiesRandomSpawner()
             {
@@ -22,11 +23,12 @@ namespace partymode
                 timer.Elapsed += SpawnPickup;
                 timer.Stop();
             }
-            public void Setup(IEnumerable<Ability> abilities, IEnumerable<Vector3> positions, int respawnInMS)
+            public void Setup(IEnumerable<Ability> abilities, IEnumerable<Vector3> positions, int spawnInMS, int respawnInMS)
             {
                 abilitiesToSpawn = new List<Ability>(abilities);
                 this.positions = new List<Vector3>(positions);
-                timer.Interval = respawnInMS;
+                timer.Interval = spawnInMS;
+                respawnTimeMS = respawnInMS;
                 int i = 0;
                 foreach (var pos in positions)
                 {
@@ -50,7 +52,7 @@ namespace partymode
                 var randomAbility = r.Next(abilitiesToSpawn.Count);
                 var randomPosition = r.Next(availablePositions.Count);
                 var newPosition = availablePositions[randomPosition];
-                var pickup = abilitiesToSpawn[randomAbility].CreatePickup(positions[newPosition]);
+                var pickup = abilitiesToSpawn[randomAbility].CreatePickup(positions[newPosition], respawnTimeMS);
                 pickup.PickUp += new EventHandler<SampSharp.GameMode.Events.PickUpPickupEventArgs>(
                     delegate (object o, SampSharp.GameMode.Events.PickUpPickupEventArgs args) {
                         if (!availablePositions.Contains(newPosition))

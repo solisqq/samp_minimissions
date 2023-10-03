@@ -51,7 +51,7 @@ namespace partymode
                     new Vector3(2121.884, -1804.1135, 199.15529),
                     new Vector3(2108.6484, -1829.274, 194.30704),
                 },
-                8000);
+                8000, 8000);
         }
 
         private void HandleReward(object sender, ElapsedEventArgs e)

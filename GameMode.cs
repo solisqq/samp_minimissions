@@ -10,13 +10,15 @@ using SampSharp.GameMode.Events;
 using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Text.Json;
+using System.Linq;
 
 namespace partymode
 {
     public class GameMode : BaseMode
     {
         
-        public static string version = "0.2309.27";
+        public static string version = "0.2310.02";
         public static List<PlayMode> playModes = new List<PlayMode>();
         public static PlayMode currentPlayMode;
         private static DerbyPM derbyMode = new DerbyPM();
@@ -25,6 +27,8 @@ namespace partymode
         private static LSLongRacePlayMode lsraceMode = new LSLongRacePlayMode();
         public static GameMode gm;
         public static object SAMP { get; internal set; }
+
+        TCPMsg serverInfoMSG; 
 
         protected override void OnInitialized(EventArgs e)
         {
@@ -40,6 +44,11 @@ namespace partymode
             EnableStuntBonusForAll(false);
             DisableInteriorEnterExits();
             setCurrentMode(lsraceMode);
+            serverInfoMSG = new TCPMsg("server_info", getServerInfoJSON);
+        }
+        private string getServerInfoJSON(JsonElement element)
+        {
+            return "players_online: \"" + GetPlayers().Count.ToString()+ "\", current_mode: \"" + currentPlayMode.cmd+"\"";
         }
         private void createPClasses()
         {

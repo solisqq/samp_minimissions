@@ -3,6 +3,8 @@
     <PropertyGroup>
         <OutputType>Exe</OutputType>
         <TargetFramework>netcoreapp3.1</TargetFramework>
+        <PlatformTarget>x64</PlatformTarget>
+        <Platforms>AnyCPU;x64</Platforms>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -11,18 +13,27 @@
       <OutputPath>G:\Games\SAMP\Server\gamemodes\</OutputPath>
     </PropertyGroup>
 
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+      <PlatformTarget>x86</PlatformTarget>
+      <DefineConstants>TRACE</DefineConstants>
+      <OutputPath>G:\Games\SAMP\Server\gamemodes\</OutputPath>
+    </PropertyGroup>
+
     <ItemGroup>
       <Compile Include="Abilities.cs" />
       <Compile Include="Ability.cs" />
+      <Compile Include="utils.cs" />
       <Compile Include="Commands.cs" />
       <Compile Include="CustomPickupFactory.cs" />
       <Compile Include="CustomSpectator.cs" />
+      <Compile Include="Database.cs" />
       <Compile Include="DerbyPlayMode.cs" />
       <Compile Include="FreeRoamPlayMode.cs" />
       <Compile Include="GameMode.cs" />
       <Compile Include="HideSeekPlayMode.cs" />
       <Compile Include="KeysID.cs" />
       <Compile Include="LSLongRacePlayMode.cs" />
+      <Compile Include="MsgParser.cs" />
       <Compile Include="NativeServer.cs" />
       <Compile Include="Player.cs" />
       <Compile Include="PlayerItem.cs" />
@@ -35,6 +46,7 @@
 
     <ItemGroup>
         <PackageReference Include="SampSharp.GameMode" Version="0.9.0" />
+        <PackageReference Include="System.Data.SQLite" Version="1.0.118" />
     </ItemGroup>
 
     <Target Name="PreBuild" BeforeTargets="PreBuildEvent">

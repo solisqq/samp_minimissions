@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>454</width>
+    <height>348</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">#centralwidget {
+	background-color: rgb(21, 6, 17);
+	
+}</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0,2,0">
+    <property name="leftMargin">
+     <number>0</number>
+    </property>
+    <property name="topMargin">
+     <number>0</number>
+    </property>
+    <property name="rightMargin">
+     <number>0</number>
+    </property>
+    <property name="bottomMargin">
+     <number>0</number>
+    </property>
+    <item>
+     <widget class="QLabel" name="label_2">
+      <property name="styleSheet">
+       <string notr="true">font-size: 24px;
+font-weight: 600;
+color: rgb(234, 234, 234);
+background-color: rgb(30, 12, 34);
+padding-top:12px;
+padding-bottom:10px;
+border-bottom: 2px solid rgb(64, 20, 87);</string>
+      </property>
+      <property name="text">
+       <string>WZGaming</string>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QWidget" name="widget" native="true"/>
+    </item>
+    <item>
+     <widget class="QWidget" name="widget_2" native="true">
+      <layout class="QHBoxLayout" name="horizontalLayout_2">
+       <item>
+        <widget class="QWidget" name="loginWidget333" native="true">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>1000</width>
+           <height>1000</height>
+          </size>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">QPushButton {
+  background-color: rgb(38, 143, 71);
+  border: 1px solid transparent;
+  border-radius: 5px;
+  color: #FFFFFF;
+  font-family: &quot;Inter var&quot;,ui-sans-serif,system-ui,-apple-system,system-ui,&quot;Segoe UI&quot;,Roboto,&quot;Helvetica Neue&quot;,Arial,&quot;Noto Sans&quot;,sans-serif,&quot;Apple Color Emoji&quot;,&quot;Segoe UI Emoji&quot;,&quot;Segoe UI Symbol&quot;,&quot;Noto Color Emoji&quot;;
+  font-size: 14px;
+  font-weight: 600;
+	padding-top: 5px;
+	padding-bottom: 5px;
+}
+
+QPushButton:hover {
+  background-color: rgb(97, 255, 94);
+}
+
+QPushButton::disabled {
+	background-color: rgb(116, 116, 116);
+	color: rgb(190,190,190);
+}
+QLineEdit {
+	border: 2px solid rgb(63, 17, 75);
+	background-color: rgb(40, 18, 58);
+	font-size: 14px;
+	color:white;
+	padding-top: 2px;
+	padding-bottom: 2px;
+	font-weight: 600;
+}</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_2">
+          <property name="spacing">
+           <number>4</number>
+          </property>
+          <item alignment="Qt::AlignHCenter|Qt::AlignVCenter">
+           <widget class="Session" name="loginWidget" native="true"/>
+          </item>
+          <item alignment="Qt::AlignTop">
+           <widget class="PlayerData" name="playerWidget" native="true"/>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item alignment="Qt::AlignRight">
+     <widget class="Connection" name="connectionWidget" native="true"/>
+    </item>
+   </layout>
+  </widget>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>Connection</class>
+   <extends>QWidget</extends>
+   <header>connection.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>Session</class>
+   <extends>QWidget</extends>
+   <header>session.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>PlayerData</class>
+   <extends>QWidget</extends>
+   <header>playerdata.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>

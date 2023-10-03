@@ -1,0 +1,253 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>PlayerData</class>
+ <widget class="QWidget" name="PlayerData">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>446</width>
+    <height>104</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true"/>
+  </property>
+  <layout class="QHBoxLayout" name="horizontalLayout">
+   <property name="leftMargin">
+    <number>0</number>
+   </property>
+   <property name="topMargin">
+    <number>0</number>
+   </property>
+   <property name="rightMargin">
+    <number>0</number>
+   </property>
+   <property name="bottomMargin">
+    <number>0</number>
+   </property>
+   <item>
+    <widget class="QWidget" name="playerInfoContainer" native="true">
+     <property name="styleSheet">
+      <string notr="true">
+QLineEdit {
+	border: 2px solid rgb(63, 17, 75);
+	background-color: rgb(40, 18, 58);
+	font-size: 14px;
+	color:white;
+	padding-top: 2px;
+	padding-bottom: 2px;
+	font-weight: 600;
+}
+#infoContainer {
+	background-color: qlineargradient(spread:pad, x1:0.661778, y1:0.164, x2:1, y2:1, stop:0 rgba(24, 14, 40, 253), stop:0.00555556 rgba(9, 10, 25, 255), stop:0.0111111 rgba(0, 0, 0, 255), stop:1 rgba(25, 14, 34, 251));
+	border: 2px solid rgb(25, 10, 33);
+	border-left:0;
+}
+#frameButton:hover {
+	border: 2px solid rgb(114, 163, 255);
+	
+}
+#frameButton {
+	border: 2px solid transparent;
+	border-radius: 5px;
+}</string>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="0,3,2">
+      <property name="spacing">
+       <number>0</number>
+      </property>
+      <property name="leftMargin">
+       <number>0</number>
+      </property>
+      <property name="topMargin">
+       <number>0</number>
+      </property>
+      <property name="rightMargin">
+       <number>9</number>
+      </property>
+      <property name="bottomMargin">
+       <number>0</number>
+      </property>
+      <item alignment="Qt::AlignHCenter|Qt::AlignVCenter">
+       <widget class="QFrame" name="frameButton">
+        <property name="minimumSize">
+         <size>
+          <width>59</width>
+          <height>104</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>59</width>
+          <height>104</height>
+         </size>
+        </property>
+        <property name="frameShape">
+         <enum>QFrame::StyledPanel</enum>
+        </property>
+        <property name="frameShadow">
+         <enum>QFrame::Raised</enum>
+        </property>
+        <layout class="QVBoxLayout" name="verticalLayout">
+         <property name="spacing">
+          <number>0</number>
+         </property>
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>1</number>
+         </property>
+         <property name="bottomMargin">
+          <number>0</number>
+         </property>
+         <item alignment="Qt::AlignHCenter|Qt::AlignVCenter">
+          <widget class="QPushButton" name="skinBtn">
+           <property name="minimumSize">
+            <size>
+             <width>55</width>
+             <height>100</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>55</width>
+             <height>100</height>
+            </size>
+           </property>
+           <property name="styleSheet">
+            <string notr="true"/>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="iconSize">
+            <size>
+             <width>100</width>
+             <height>55</height>
+            </size>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item alignment="Qt::AlignVCenter">
+       <widget class="QWidget" name="infoContainer" native="true">
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>70</height>
+         </size>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">
+QLabel{
+	font-size: 13px;
+	font-weight: 500;
+	color: rgb(226, 222, 224);
+}
+
+</string>
+        </property>
+        <layout class="QFormLayout" name="formLayout_2">
+         <property name="rightMargin">
+          <number>24</number>
+         </property>
+         <item row="0" column="0">
+          <widget class="QLabel" name="label222">
+           <property name="text">
+            <string>Nazwa:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QLabel" name="loginLabel">
+           <property name="styleSheet">
+            <string notr="true">font-weight: 600;
+color: rgb(250, 242, 255);
+font-size: 17px;</string>
+           </property>
+           <property name="text">
+            <string>TextLabel</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="label333">
+           <property name="text">
+            <string>Wynik:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="QLabel" name="scoreLabel">
+           <property name="styleSheet">
+            <string notr="true">font-weight: 600;
+color: rgb(250, 242, 255);
+font-size: 17px;</string>
+           </property>
+           <property name="text">
+            <string>TextLabel</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="pushButton">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>70</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>70</height>
+         </size>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">QPushButton {
+  background-color: qlineargradient(spread:pad, x1:1, y1:0.0227273, x2:1, y2:1, stop:0 rgba(39, 255, 172, 202), stop:0.961111 rgba(46, 102, 176, 202));
+  border: 1px solid transparent;
+  color: #FFFFFF;
+  font-family: &quot;Inter var&quot;,ui-sans-serif,system-ui,-apple-system,system-ui,&quot;Segoe UI&quot;,Roboto,&quot;Helvetica Neue&quot;,Arial,&quot;Noto Sans&quot;,sans-serif,&quot;Apple Color Emoji&quot;,&quot;Segoe UI Emoji&quot;,&quot;Segoe UI Symbol&quot;,&quot;Noto Color Emoji&quot;;
+  font-size: 24px;
+  font-weight: 600;
+	padding-top: 5px;
+	padding-bottom: 5px;
+}
+
+QPushButton:hover {
+  background-color: qlineargradient(spread:pad, x1:1, y1:0.0227273, x2:1, y2:1, stop:0 rgba(45, 255, 182, 202), stop:0.961111 rgba(50, 106, 180, 202));
+	border: 1px solid rgb(38, 190, 255);
+}
+
+QPushButton::disabled {
+	background-color: rgb(116, 116, 116);
+	color: rgb(190,190,190);
+}</string>
+        </property>
+        <property name="text">
+         <string>Zagraj</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

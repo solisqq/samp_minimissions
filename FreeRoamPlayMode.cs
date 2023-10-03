@@ -134,7 +134,7 @@ namespace partymode
                     new Vector3(1604.2289, 1588.3243, 10.8203125),
                     new Vector3(1604.0085, 1591.8567, 10.8203125)
                 },
-                800);
+                800, 10000);
             autoBegin = true;
             WeaponItems.AK47.Spawn(new Vector3(1540.5671, 1615.7604, 10.8203125), new Vector3(0,0,0), 30);
         }

@@ -57,11 +57,13 @@ namespace partymode
             var pickup = Pickup.Create((int)model, (int)type, pos);
             pickups.Add(pickup);
             pickup.PickUp += action;
-            
-            if (respawnAfterMS>0)
+
+            if (respawnAfterMS > 0)
+            {
                 pickup.PickUp += new System.EventHandler<SampSharp.GameMode.Events.PickUpPickupEventArgs>(
-                    delegate(object o, SampSharp.GameMode.Events.PickUpPickupEventArgs args) {
-                        respawnTimer = new Timer(respawnAfterMS);
+                    delegate (object o, SampSharp.GameMode.Events.PickUpPickupEventArgs args)
+                    {
+                        respawnTimer.Interval = respawnAfterMS;
                         respawnTimer.AutoReset = false;
                         respawnTimer.Start();
                         respawnTimer.Elapsed += new System.Timers.ElapsedEventHandler(delegate (object o, System.Timers.ElapsedEventArgs args)
@@ -69,6 +71,7 @@ namespace partymode
                             Create(pos, respawnAfterMS);
                         });
                     });
+            } else Console.WriteLine("not Created");
             pickup.PickUp += Pickup_PickUp;
             return pickup;
         }

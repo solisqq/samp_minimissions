@@ -85,6 +85,8 @@ namespace partymode
             Money = (int)internalScore;
             Score = (int)internalScore;
             PutCameraBehindPlayer();
+/*            var data = Database.instance.get(new List<string>() { "skin" }, this.Name);
+            this.Skin = Convert.ToInt32(data["skin"]);*/
             GameMode.currentPlayMode.OverwriteSpawnBehaviour(this);
         }
         public override void OnDeath(DeathEventArgs e)
