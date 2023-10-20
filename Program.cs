@@ -15,9 +15,12 @@ namespace partymode
         static async Task Main(string[] args)
         {
             JsonElement paths = new JsonElement();
-            string pathspaths = "/home/solis/solivision/paths.json";
-            if(System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-                pathspaths = "G:/Solivision/vps/samp/paths.json";
+            string pathspaths = "G:/Solivision/vps/samp/paths.json";
+            if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                Console.WriteLine("WINDOWS");
+                pathspaths = "/home/solis/solivision/paths.json";
+            }
             
             using (StreamReader r = new StreamReader(pathspaths))
             {
