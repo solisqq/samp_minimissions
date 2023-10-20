@@ -6,19 +6,15 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>260</width>
-    <height>168</height>
+    <width>330</width>
+    <height>188</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
   <property name="styleSheet">
-   <string notr="true">#credentialsContainer {
-	background-color: rgb(21, 8, 39);
-	border-radius: 14px;
-	border: 2px solid rgb(25, 13, 43);
-}</string>
+   <string notr="true"/>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout" stretch="1">
    <property name="leftMargin">
@@ -42,35 +38,7 @@
       </size>
      </property>
      <property name="styleSheet">
-      <string notr="true">QPushButton {
-  background-color: rgb(38, 143, 71);
-  border: 1px solid transparent;
-  border-radius: 5px;
-  color: #FFFFFF;
-  font-family: &quot;Inter var&quot;,ui-sans-serif,system-ui,-apple-system,system-ui,&quot;Segoe UI&quot;,Roboto,&quot;Helvetica Neue&quot;,Arial,&quot;Noto Sans&quot;,sans-serif,&quot;Apple Color Emoji&quot;,&quot;Segoe UI Emoji&quot;,&quot;Segoe UI Symbol&quot;,&quot;Noto Color Emoji&quot;;
-  font-size: 14px;
-  font-weight: 600;
-	padding-top: 5px;
-	padding-bottom: 5px;
-}
-
-QPushButton:hover {
-  background-color: rgb(97, 255, 94);
-}
-
-QPushButton::disabled {
-	background-color: rgb(116, 116, 116);
-	color: rgb(190,190,190);
-}
-QLineEdit {
-	border: 2px solid rgb(63, 17, 75);
-	background-color: rgb(40, 18, 58);
-	font-size: 14px;
-	color:white;
-	padding-top: 2px;
-	padding-bottom: 2px;
-	font-weight: 600;
-}</string>
+      <string notr="true"/>
      </property>
      <layout class="QFormLayout" name="formLayout_2">
       <property name="leftMargin">
@@ -87,7 +55,7 @@ QLineEdit {
         <property name="styleSheet">
          <string notr="true">font-size: 18px;
 font-weight: 600;
-color: rgb(255, 216, 255);
+color: rgba(58, 242, 181, 220);
 margin-bottom:4px;</string>
         </property>
         <property name="text">
@@ -101,7 +69,7 @@ margin-bottom:4px;</string>
       <item row="1" column="0">
        <widget class="QLabel" name="label">
         <property name="styleSheet">
-         <string notr="true">color: white;
+         <string notr="true">color: rgb(25, 192, 141);
 font-size: 14px;</string>
         </property>
         <property name="text">
@@ -115,7 +83,7 @@ font-size: 14px;</string>
       <item row="2" column="0">
        <widget class="QLabel" name="label_2">
         <property name="styleSheet">
-         <string notr="true">color: white;
+         <string notr="true">color: rgb(25, 192, 141);
 font-size: 14px;</string>
         </property>
         <property name="text">
@@ -167,7 +135,7 @@ font-size: 14px;</string>
          <item alignment="Qt::AlignHCenter|Qt::AlignVCenter">
           <widget class="QLabel" name="label_4">
            <property name="styleSheet">
-            <string notr="true">color: rgb(203, 179, 255);
+            <string notr="true">color: rgba(28, 192, 141, 220);
 font-size: 12px;</string>
            </property>
            <property name="text">

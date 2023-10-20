@@ -4,8 +4,6 @@
 #include <QJsonDocument>
 #include <QTimer>
 
-
-
 std::unordered_map<QString, TCPMsg*> TCPMsg::messages{};
 //const QString Connection::hostIp = "127.0.0.1";
 Connection* TCPMsg::connection = nullptr;
@@ -22,6 +20,7 @@ Connection::Connection(QWidget *parent) :
         auto data = file.readAll();
         if(data.length()>5) {
             auto jsonobj = QJsonDocument::fromJson(data).object();
+
             Connection::hostIp = jsonobj.value("server").toString("solivision.pl");
         }
     }
@@ -38,8 +37,9 @@ Connection::Connection(QWidget *parent) :
 void Connection::sendData(const QString& json) {
     if(!socket) return;
     if(!socket->isOpen()) return;
-    qDebug()<<(json+'\n').toUtf8();
+    qDebug()<<"out"<<(json+'\n').toUtf8();
     socket->write((json+'\n').toUtf8());
+    socket->flush();
 }
 
 Connection::~Connection()
@@ -54,13 +54,19 @@ Connection::~Connection()
 }
 
 void Connection::readyRead() {
-    auto raw = socket->readLine();
-
-    auto jsonobj = QJsonDocument::fromJson(raw).object();
-    auto response = jsonobj.value("action").toString();
-    auto data = jsonobj.value("data").toObject();
-    TCPMsg::tryInvoke(response, data);
-    qDebug()<<data;
+    auto wholeData = dataBuffor + socket->readAll();
+    auto index = wholeData.indexOf('\n');
+    while(index!=-1) {
+        auto msg = wholeData.left(index);
+        qDebug()<<"in "<<msg<<index<<wholeData;
+        auto jsonobj = QJsonDocument::fromJson(msg).object();
+        auto response = jsonobj.value("action").toString();
+        auto data = jsonobj.value("data").toObject();
+        TCPMsg::tryInvoke(response, data);
+        wholeData = wholeData.mid(index+1,wholeData.length()-1);
+        index = wholeData.indexOf('\n');
+    }
+    dataBuffor = wholeData;
 }
 
 void Connection::tryReconnect()

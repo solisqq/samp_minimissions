@@ -12,27 +12,7 @@ namespace partymode
     {
         Timer rewardTimer;
         private Player seeker=null;
-        public HideSeekPlayMode() :
-            base(
-                "hideseek",
-                new CustomSpectator(new Vector3(-1158.2, -1180.6, 129.5), 60, 10000),
-                "Tryb rozgrywki: ~g~Hide&Seek(chowany) ~w~Za chwile nastapi wylosowanie osoby szukajacej. Jezeli nia nie zostaniesz, po rozpoczeciu"+
-                "rozgrywki jak najszybciej sie ukryj. Osoba szukajaca bedzie posiadala bron. Nie odrodzisz sie po smierci."+
-                "~n~~g~Spiesz sie ~w~- z czasem bedziesz tracil ~r~zycie~w~!",
-                new List<Vector3>
-                {
-                        new Vector3(-1158.2,-1180.6,129.5),
-                        new Vector3(-1159.2,-1178.6,129.5),
-                        new Vector3(-1157.2,-1179.1,129.5),
-                        new Vector3(-1158.9,-1179.3,129.5),
-                        new Vector3(-1157.8,-1179.9,129.5),
-                        new Vector3(-1158.2,-1179.6,129.5),
-                        new Vector3(-1159.2,-1180.6,129.5),
-                        new Vector3(-1156.2,-1182.6,129.5),
-                        new Vector3(-1158.2,-1181.6,129.5),
-                        new Vector3(-1159.2,-1178.6,129.5),
-                },
-                0, 0, 1)
+        public HideSeekPlayMode() :base("hideseek")
         {
             rewardTimer = new Timer(1000);
             rewardTimer.Elapsed += HandleReward;
@@ -175,7 +155,7 @@ namespace partymode
         }
         public override void InitializeStatics()
         {
-            CreateObject(671, -1155.1, -1230.7, 130.89999, 0, 0, 0);
+            /*CreateObject(671, -1155.1, -1230.7, 130.89999, 0, 0, 0);
             CreateObject(647, -1162.9, -1223.5, 130.10001, 0, 0, 0);
             CreateObject(647, -1168.7, -1226.8, 132.7, 0, 0, 0);
             CreateObject(647, -1186.5, -1229.1, 134.39999, 0, 0, 0);
@@ -315,7 +295,7 @@ namespace partymode
             CreateObject(919, -1132.7, -1269.1, 133, 0, 0, 0);
             CreateObject(11326, -1115.1, -1275.1, 131.5, 0, 0, 0);
             CreateObject(11480, -1081, -1274.3, 130.39999, 0, 0, 0);
-            CreateObject(18283, -1116.8, -1297.2, 128.2, 0, 0, 0);
+            CreateObject(18283, -1116.8, -1297.2, 128.2, 0, 0, 0);*/
         }
     }
 }

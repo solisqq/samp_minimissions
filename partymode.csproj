@@ -22,6 +22,10 @@
     <ItemGroup>
       <Compile Include="Abilities.cs" />
       <Compile Include="Ability.cs" />
+      <Compile Include="BattleRoyalePlayMode.cs" />
+      <Compile Include="Widgets\Button.cs" />
+      <Compile Include="Widgets\Dialog.cs" />
+      <Compile Include="PMAttribute.cs" />
       <Compile Include="utils.cs" />
       <Compile Include="Commands.cs" />
       <Compile Include="CustomPickupFactory.cs" />
@@ -42,6 +46,12 @@
       <Compile Include="Race.cs" />
       <Compile Include="StaticTimer.cs" />
       <Compile Include="Team.cs" />
+      <Compile Include="Widgets\Frame.cs" />
+      <Compile Include="Widgets\Label.cs" />
+      <Compile Include="Widgets\PlayerDialog.cs" />
+      <Compile Include="Widgets\Slider.cs" />
+      <Compile Include="Widgets\TextDrawInterface.cs" />
+      <Compile Include="Widgets\Widget.cs" />
     </ItemGroup>
 
     <ItemGroup>

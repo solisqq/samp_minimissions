@@ -1,0 +1,194 @@
+1000;spl_b_mar_m;Spoiler;Pro;5
+1001;spl_b_bab_m;Spoiler;Win;5
+1002;spl_b_bar_m;Spoiler;Drag;5
+1003;spl_b_mab_m;Spoiler;Alpha;5
+1004;bnt_b_sc_m;Wloty powietrza;Champ Scoop;5
+1005;bnt_b_sc_l;Wloty powietrza;Fury Scoop;5
+1006;rf_b_sc_r;Dach;Dach Scoop;5
+1007;wg_l_b_ssk;Progi;Prawe Progi;5
+1008;nto_b_l;Nitro;5 times;50
+1009;nto_b_s;Nitro;2 times;20
+1010;nto_b_tw;Nitro;10 times;100
+1011;bnt_b_sc_p_m;Wloty powietrza;Race Scoop;5
+1012;bnt_b_sc_p_l;Wloty powietrza;Worx Scoop;5
+1013;lgt_b_rspt;Lamps;Round Fog;5
+1014;spl_b_bar_l;Spoiler;Champ;5
+1015;spl_b_bbr_l;Spoiler;Race;5
+1016;spl_b_bbr_m;Spoiler;Worx;5
+1017;wg_r_b_ssk;Progi;Lewe Progi;5
+1018;exh_b_ts;Wydech;Upswept;5
+1019;exh_b_t;Wydech;Twin;5
+1020;exh_b_l;Wydech;Large;5
+1021;exh_b_m;Wydech;Medium;5
+1022;exh_b_s;Wydech;Small;5
+1023;spl_b_bbb_m;Spoiler;Fury;5
+1024;lgt_b_sspt;Lamps;Square Fog;5
+1025;wheel_or1;Felgi;Offroad;5
+1026;wg_l_a_s;Progi;Prawe Alien Progi;5
+1027;wg_r_a_s;Progi;Lewe Alien Progi;5
+1028;exh_a_s;Wydech;Alien;5
+1029;exh_c_s;Wydech;X-Flow;5
+1030;wg_r_c_s;Progi;Lewe X-Flow Progi;5
+1031;wg_l_c_s;Progi;Prawe X-Flow Progi;5
+1032;rf_a_s;Dach;Alien Dach Vent;5
+1033;rf_c_s;Dach;X-Flow Dach Vent;5
+1034;exh_a_l;Wydech;Alien;5
+1035;rf_c_l;Dach;X-Flow Dach Vent;5
+1036;wg_l_a_l;Progi;Prawe Alien Progi;5
+1037;exh_c_l;Wydech;X-Flow;5
+1038;rf_a_l;Dach;Alien Dach Vent;5
+1039;wg_l_c_l;Progi;Lewe X-Flow Progi;5
+1040;wg_r_a_l;Progi;Lewe Alien Progi;5
+1041;wg_r_c_l;Progi;Prawe X-Flow Progi;5
+1042;wg_l_lr_br1;Progi;Prawe Chrom Progi;5
+1043;exh_lr_br2;Wydech;Slamin;5
+1044;exh_lr_br1;Wydech;Chrom;5
+1045;exh_c_f;Wydech;X-Flow;5
+1046;exh_a_f;Wydech;Alien;5
+1047;wg_l_a_f;Progi;Prawe Alien Progi;5
+1048;wg_l_c_f;Progi;Prawe X-Flow Progi;5
+1049;spl_a_f_r;Spoiler;Alien;5
+1050;spl_c_f_r;Spoiler;X-Flow;5
+1051;wg_r_a_f;Progi;Lewe Alien Progi;5
+1052;wg_r_c_f;Progi;Lewe X-Flow Progi;5
+1053;rf_c_f;Dach;X-Flow;5
+1054;rf_a_f;Dach;Alien;5
+1055;rf_a_st;Dach;Alien;5
+1056;wg_l_a_st;Progi;Prawe Alien Progi;5
+1057;wg_l_c_st;Progi;Prawe X-Flow Progi;5
+1058;spl_a_st_r;Spoiler;Alien;5
+1059;exh_c_st;Wydech;X-Flow;5
+1060;spl_c_st_r;Spoiler;X-Flow;5
+1061;rf_c_st;Dach;X-Flow;5
+1062;wg_r_a_st;Progi;Lewe Alien Progi;5
+1063;wg_r_c_st;Progi;Lewe X-Flow Progi;5
+1064;exh_a_st;Wydech;Alien;5
+1065;exh_a_j;Wydech;Alien;5
+1066;exh_c_j;Wydech;X-Flow;5
+1067;rf_a_j;Dach;Alien;5
+1068;rf_c_j;Dach;X-Flow;5
+1069;wg_l_a_j;Progi;Prawe Alien Progi;5
+1070;wg_l_c_j;Progi;Prawe X-Flow Progi;5
+1071;wg_r_a_j;Progi;Lewe Alien Progi;5
+1072;wg_r_c_j;Progi;Lewe X-Flow Progi;5
+1073;wheel_sr6;Felgi;Shadow;5
+1074;wheel_sr3;Felgi;Mega;5
+1075;wheel_sr2;Felgi;Rimshine;5
+1076;wheel_lr4;Felgi;Wires;5
+1077;wheel_lr1;Felgi;Classic;5
+1078;wheel_lr3;Felgi;Twist;5
+1079;wheel_sr1;Felgi;Cutter;5
+1080;wheel_sr5;Felgi;Switch;5
+1081;wheel_sr4;Felgi;Grove;5
+1082;wheel_gn1;Felgi;Import;5
+1083;wheel_lr2;Felgi;Dollar;5
+1084;wheel_lr5;Felgi;Trance;5
+1085;wheel_gn2;Felgi;Atomic;5
+1086;stereo;Stereo;Stereo;5
+1087;hydralics;Zawieszenie;Zawieszenie;20
+1088;rf_a_u;Dach;Alien;5
+1089;exh_c_u;Wydech;X-Flow;5
+1090;wg_l_a_u;Progi;Prawe Alien Progi;5
+1091;rf_c_u;Dach;X-Flow;5
+1092;exh_a_u;Wydech;Alien;5
+1093;wg_l_c_u;Progi;Prawe X-Flow Progi;5
+1094;wg_r_a_u;Progi;Lewe Alien Progi;5
+1095;wg_r_c_u;Progi;Prawe X-Flow Progi;5
+1096;wheel_gn3;Felgi;Ahab;5
+1097;wheel_gn4;Felgi;Virtual;5
+1098;wheel_gn5;Felgi;Access;5
+1099;wg_r_lr_br1;Progi;Lewe Chrom Progi;5
+1100;misc_c_lr_rem1;Bullbar;Chrom Grill;5
+1101;wg_r_lr_rem1;Progi;Lewe `Chrom Flames` Progi;5
+1102;wg_r_lr_sv;Progi;Lewe `Chrom Strip` Progi;5
+1103;rf_lr_bl2;Dach;Covertible;5
+1104;exh_lr_bl1;Wydech;Chrom;5
+1105;exh_lr_bl2;Wydech;Slamin;5
+1106;wg_l_lr_rem2;Progi;Prawe `Chrom Arches`;5
+1107;wg_r_lr_bl1;Progi;Lewe `Chrom Strip` Progi;5
+1108;wg_l_lr_bl1;Progi;Prawe `Chrom Strip` Progi;5
+1109;bbb_lr_slv1;Os?ona tylna;Chrom;5
+1110;bbb_lr_slv2;Os?ona tylna;Slamin;5
+1111;bnt_lr_slv1;Front Sign?;Little Sign?;5
+1112;bnt_lr_slv2;Front Sign?;Little Sign?;5
+1113;exh_lr_slv1;Wydech;Chrom;5
+1114;exh_lr_slv2;Wydech;Slamin;5
+1115;fbb_lr_slv1;Os?ona przednia;Chrom;5
+1116;fbb_lr_slv2;Os?ona przednia;Slamin;5
+1117;fbmp_lr_slv1;Przedni zderzak;Chrom;5
+1118;wg_l_lr_slv1;Progi;Prawe `Chrom Trim` Progi;5
+1119;wg_l_lr_slv2;Progi;Prawe `Wheelcovers` Progi;5
+1120;wg_r_lr_slv1;Progi;Lewe `Chrom Trim` Progi;5
+1121;wg_r_lr_slv2;Progi;Lewe `Wheelcovers` Progi;5
+1122;wg_l_lr_rem1;Progi;Prawe `Chrom Flames` Progi;5
+1123;misc_c_lr_rem2;Os?ona;Bullbar Chrom Bars;5
+1124;wg_r_lr_rem2;Progi;Lewe `Chrom Arches` Progi;5
+1125;misc_c_lr_rem3;Os?ona;Bullbar Chrom Lights;5
+1126;exh_lr_rem1;Wydech;Chrom Wydech;5
+1127;exh_lr_rem2;Wydech;Slamin Wydech;5
+1128;rf_lr_bl1;Dach;Vinyl Hardtop;5
+1129;exh_lr_sv1;Wydech;Chrom;5
+1130;rf_lr_sv1;Dach;Hardtop;5
+1131;rf_lr_sv2;Dach;Softtop;5
+1132;exh_lr_sv2;Wydech;Slamin;5
+1133;wg_l_lr_sv;Progi;Prawe `Chrom Strip` Progi;5
+1134;wg_l_lr_t1;Progi;Prawe `Chrom Strip` Progi;5
+1135;exh_lr_t2;Wydech;Slamin;5
+1136;exh_lr_t1;Wydech;Chrom;5
+1137;wg_r_lr_t1;Progi;Lewe `Chrom Strip` Progi;5
+1138;spl_a_s_b;Spoiler;Alien;5
+1139;spl_c_s_b;Spoiler;X-Flow;5
+1140;rbmp_c_s;Tylny zderzak;X-Flow;5
+1141;rbmp_a_s;Tylny zderzak;Alien;5
+1142;bntr_b_ov;Maska;Lewe Oval Maskas;5
+1143;bntl_b_ov;Maska;Prawe Oval Maskas;5
+1144;bntr_b_sq;Maska;Lewe Square Maskas;5
+1145;bntl_b_sq;Maska;Prawe Square Maskas;5
+1146;spl_c_l_b;Spoiler;X-Flow;5
+1147;spl_a_l_b;Spoiler;Alien;5
+1148;rbmp_c_l;Tylny zderzak;X-Flow;5
+1149;rbmp_a_l;Tylny zderzak;Alien;5
+1150;rbmp_a_f;Tylny zderzak;Alien;5
+1151;rbmp_c_f;Tylny zderzak;X-Flow;5
+1152;fbmp_c_f;Przedni zderzak;X-Flow;5
+1153;fbmp_a_f;Przedni zderzak;Alien;5
+1154;rbmp_a_st;Tylny zderzak;Alien;5
+1155;fbmp_a_st;Przedni zderzak;Alien;5
+1156;rbmp_c_st;Tylny zderzak;X-Flow;5
+1157;fbmp_c_st;Przedni zderzak;X-Flow;5
+1158;spl_c_j_b;Spoiler;X-Flow;5
+1159;rbmp_a_j;Tylny zderzak;Alien;5
+1160;fbmp_a_j;Przedni zderzak;Alien;5
+1161;rbmp_c_j;Tylny zderzak;X-Flow;5
+1162;spl_a_j_b;Spoiler;Alien;5
+1163;spl_c_u_b;Spoiler;X-Flow;5
+1164;spl_a_u_b;Spoiler;Alien;5
+1165;fbmp_c_u;Przedni zderzak;X-Flow;5
+1166;fbmp_a_u;Przedni zderzak;Alien;5
+1167;rbmp_c_u;Tylny zderzak;X-Flow;5
+1168;rbmp_a_u;Tylny zderzak;Alien;5
+1169;fbmp_a_s;Przedni zderzak;Alien;5
+1170;fbmp_c_s;Przedni zderzak;X-Flow;5
+1171;fbmp_a_l;Przedni zderzak;Alien;5
+1172;fbmp_c_l;Przedni zderzak;X-Flow;5
+1173;fbmp_c_j;Przedni zderzak;X-Flow;5
+1174;fbmp_lr_br1;Przedni zderzak;Chrom;5
+1175;fbmp_lr_br2;Tylny zderzak;Slamin;5
+1176;rbmp_lr_br1;Przedni zderzak;Chrom;5
+1177;rbmp_lr_br2;Tylny zderzak;Slamin;5
+1178;rbmp_lr_rem2;Tylny zderzak;Slamin;5
+1179;fbmp_lr_rem1;Przedni zderzak;Chrom;5
+1180;rbmp_lr_rem1;Tylny zderzak;Chrom;5
+1181;fbmp_lr_bl2;Przedni zderzak;Slamin;5
+1182;fbmp_lr_bl1;Przedni zderzak;Chrom;5
+1183;rbmp_lr_bl2;Tylny zderzak;Slamin;5
+1184;rbmp_lr_bl1;Tylny zderzak;Chrom;5
+1185;fbmp_lr_rem2;Przedni zderzak;Slamin;5
+1186;rbmp_lr_sv2;Tylny zderzak;Slamin;5
+1187;rbmp_lr_sv1;Tylny zderzak;Chrom;5
+1188;fbmp_lr_sv2;Przedni zderzak;Slamin;5
+1189;fbmp_lr_sv1;Przedni zderzak;Chrom;5
+1190;fbmp_lr_t2;Przedni zderzak;Slamin;5
+1191;fbmp_lr_t1;Przedni zderzak;Chrom;5
+1192;rbmp_lr_t1;Tylny zderzak;Chrom;5
+1193;rbmp_lr_t2;Tylny zderzak;Slamin;5

@@ -47,7 +47,6 @@ namespace partymode
                 clients.Add(client);
                 var clientTask = client.Run();
                 clientTask.ContinueWith(t => clients.Remove(client));
-                Console.WriteLine(clients.Count);
             }
         }
     }
@@ -108,17 +107,18 @@ namespace partymode
             {
                 var dataTask = await r.ReadLineAsync();
                 if (dataTask == null) continue;
-                Console.WriteLine(dataTask);
+                Console.WriteLine("in "+dataTask);
                 JsonDocument json = JsonDocument.Parse(dataTask);
                 JsonElement jsonElement = json.RootElement;
                 string response = TCPMsgHandler.instance.handle(
                     jsonElement.GetProperty("action").ToString(),
                     jsonElement.GetProperty("data"));
                 string jsonTextRespond = "{ \"action\": \"" + jsonElement.GetProperty("action").ToString() + "\", \"data\": { " + response + "}}";
-                Console.WriteLine(jsonTextRespond);
-                var bytes = System.Text.Encoding.UTF8.GetBytes(jsonTextRespond);
-                await stream.WriteAsync(bytes, 0, bytes.Length);
-                w.Write(jsonTextRespond + "\n");
+                Console.WriteLine("out" + jsonTextRespond);
+                /*var bytes = System.Text.Encoding.UTF8.GetBytes(jsonTextRespond + "\n");
+                await stream.WriteAsync(bytes, 0, bytes.Length);*/
+                w.Write(jsonTextRespond+"\n");
+                w.Flush();
             }
             this.client.Close();
         }

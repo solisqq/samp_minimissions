@@ -7,6 +7,11 @@ using System;
 using SampSharp.GameMode;
 using System.Collections.Generic;
 using SampSharp.GameMode.SAMP.Commands.PermissionCheckers;
+using System.Threading;
+using System.Numerics;
+using Microsoft.VisualBasic.FileIO;
+using SampSharp.GameMode.Display;
+using partymode.Widgets;
 
 namespace partymode
 {
@@ -20,6 +25,7 @@ namespace partymode
             private System.Timers.Timer timer = new System.Timers.Timer(1000);
             private Action finishAction = null;
             Player player = null;
+            
             public CountDown(Player player) {
                 this.player = player;
                 timer.Elapsed += PlayerCountdownTimer_Elapsed;
@@ -61,32 +67,72 @@ namespace partymode
         public bool vabilityWarmedOff = true;
         public bool pabilityWarmedOff = true;
         public CustomSpectator spectator;
+        public Dictionary<string, TDialog> dialogs = new Dictionary<string, TDialog>();
+        PlayerDialog infoDialog;
         private double internalScore=0;
         List<PlayerItem> items = new List<PlayerItem>();
         public CountDown countDown;
+        List<System.Timers.Timer> timers = new List<System.Timers.Timer>();
 
         public Player()
         {
             countDown = new CountDown(this);
         }
-
+        public void addDialog(string dialogName, TDialog dialog)
+        {
+            dialogs.Add(dialogName, dialog);
+        }
         public override void OnConnected(EventArgs e)
         {
             base.OnConnected(e);
             SendClientMessage("Siema " + this.Name + ". Milej zabawy :)");
             SendClientMessage("Wpisz '/zasady' w chacie by poznac reguly danej rozgrywki.");
             if(this.IsAdmin) SendClientMessage("Witaj ponownie adminie!");
+            infoDialog = new PlayerDialog(this);
+            infoDialog.show(this);
+        }
+        public void cleanUpTimers()
+        {
+            foreach (var timer in timers) timer.Stop();
+            timers.Clear();
+        }
+        public void addTask(Action<Player> action, int delayMS)
+        {
+            System.Timers.Timer timer = new System.Timers.Timer();
+            timer.Interval = delayMS;
+            timer.AutoReset = false;
+            timer.Elapsed += (o, e) =>
+            {
+                if (this.IsConnected && this.IsAlive)
+                    action.Invoke(this);
+                timers.Remove(timer);
+                timer.Dispose();
+            };
+            timer.Start();
+        }
+
+        public void showDialog(string dialog)
+        {
+            if(dialogs.ContainsKey(dialog))
+                dialogs[dialog].show(this);
+        }
+
+        public void hideDialog(string dialog)
+        {
+            if (dialogs.ContainsKey(dialog))
+                dialogs[dialog].hide(this);
         }
 
         public override void OnSpawned(SpawnEventArgs e)
         {
+            var skin = Database.instance.get<int>("skin", "samp_player", "name", this.Name, 0);
+            if (skin.Key != false) this.Skin = skin.Value;
             base.OnSpawned(e);
             Interior = 0;
             Money = (int)internalScore;
             Score = (int)internalScore;
             PutCameraBehindPlayer();
-/*            var data = Database.instance.get(new List<string>() { "skin" }, this.Name);
-            this.Skin = Convert.ToInt32(data["skin"]);*/
+            
             GameMode.currentPlayMode.OverwriteSpawnBehaviour(this);
         }
         public override void OnDeath(DeathEventArgs e)
@@ -105,6 +151,7 @@ namespace partymode
         public void ClearPlayer()
         {
             ResetWeapons();
+            this.Skin = Database.instance.get<int>("skin", "samp_player", "name", this.Name, 1).Value;
             ToggleControllable(true);
             ToggleSpectating(false);
             ResetScore();
@@ -147,7 +194,7 @@ namespace partymode
             if (vability != null && InAnyVehicle) vability.OverwriteKeyStateChangeEvent(e, this);
             if (pability != null && !InAnyVehicle) pability.OverwriteKeyStateChangeEvent(e, this);
         }
-        public bool InArea(Vector3 position, float area, bool ignoreZ = false)
+        public bool InArea(SampSharp.GameMode.Vector3 position, float area, bool ignoreZ = false)
         {
             if (Math.Abs(position.X - this.Position.X) < area && 
                 Math.Abs(position.Y - this.Position.Y) < area && 
@@ -167,19 +214,19 @@ namespace partymode
             }
             return toRet;
         }
-        public Vector3 GetInFrontPosition(double distance, double highOffset)
+        public SampSharp.GameMode.Vector3 GetInFrontPosition(double distance, double highOffset)
         {
-            return new Vector3(
+            return new SampSharp.GameMode.Vector3(
                 Position.X + distance * Math.Sin(-Angle * Math.PI / 180),
                 Position.Y + distance * Math.Cos(-Angle * Math.PI / 180),
                 Position.Z + highOffset);
         }
         public override void OnRequestClass(RequestClassEventArgs e)
         {
-            var skin = Database.instance.get<int>("skin", this.Name);
+            var skin = Database.instance.get<int>("skin", "samp_player", "name", this.Name, 0);
             var skinId = 1;
             if (skin.Key != false) skinId = skin.Value;
-            this.SetSpawnInfo(0, skinId, new Vector3(349.0453f, 193.2271f, 1014.1797f), 286.25f);
+            this.SetSpawnInfo(0, skinId, new SampSharp.GameMode.Vector3(349.0453f, 193.2271f, 1014.1797f), 286.25f);
             this.Spawn();
         }
         public override void OnEnterVehicle(EnterVehicleEventArgs e)

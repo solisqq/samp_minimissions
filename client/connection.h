@@ -15,6 +15,7 @@ class Connection : public QWidget
     Q_OBJECT
     QTcpSocket* socket{};
     QTimer* reconnectTimer{};
+    QByteArray dataBuffor = QByteArray();
 public:
     static QString hostIp;
     explicit Connection(QWidget *parent = nullptr);
@@ -60,7 +61,6 @@ public:
         if(TCPMsg::connection){
             QString jsonString = "{ \"action\": \""+cmd+"\", \"data\": "+doc.toJson(QJsonDocument::Compact)+"}";
             TCPMsg::connection->sendData(jsonString);
-            qDebug()<<"Sending: "+jsonString;
         }
     }
 signals:

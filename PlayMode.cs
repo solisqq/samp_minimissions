@@ -1,12 +1,15 @@
-﻿using SampSharp.GameMode;
+﻿using partymode.Widgets;
+using SampSharp.GameMode;
 using SampSharp.GameMode.Definitions;
 using SampSharp.GameMode.Display;
 using SampSharp.GameMode.SAMP;
 using SampSharp.GameMode.World;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using System.Timers;
 
 namespace partymode
@@ -38,29 +41,17 @@ namespace partymode
         public double scoreLimit { get { return _scoreLimit; } set { _scoreLimit = value; } }
         TextDraw infoTd;
 
-        public PlayMode(
-            String command, 
-            CustomSpectator spec,
-            string textRules, 
-            List<Vector3> startPositions, 
-            double rotX, 
-            double rotY, 
-            int randomizePosition = 0)
+        public PlayMode(String command)
         {
-            GameMode.playModes.Add(this);
+            GameMode.playModes.Add(command, this);
             cmd = command;
-            SetStartPosition(startPositions, rotX, rotY, randomizePosition);
-            this.spectator = spec;
             beginCountDown = new System.Timers.Timer(1000);
             beginCountDown.AutoReset = false;
             beginCountDown.Elapsed += BeginCountDown_Elapsed;
-            rules = textRules;
-            InitializeInfoTD();
-            
         }
         private void InitializeInfoTD()
         {
-            infoTd = TextDraw.Create(TDID.value);
+/*            infoTd = TextDraw.Create(TDID.value);
             infoTd.Hide();
             infoTd.Alignment = SampSharp.GameMode.Definitions.TextDrawAlignment.Left;
             infoTd.BackColor = SampSharp.GameMode.SAMP.Color.Black;
@@ -71,7 +62,7 @@ namespace partymode
             infoTd.UseBox = true;
             infoTd.Text = "";
             infoTd.Position = new Vector2(250, 120.0);
-            infoTd.Width = 400;
+            infoTd.Width = 400;*/
         }
         private void StartCountDown(int timeInSec)
         {
@@ -158,11 +149,108 @@ namespace partymode
         {
             return CreateVehicle(id, new Vector3(x, y, z), rotation, nonStatic);
         }
+        public BaseVehicle CreateVehicle(List<int> randomId, double x, double y, double z, double rotation, bool nonStatic = false)
+        {
+            int toSpawn = 409;
+            try
+            {
+                Random rand = new Random();
+                toSpawn = randomId[rand.Next(0, randomId.Count)];
+            }
+            catch { }
+            return CreateVehicle(toSpawn, new Vector3(x, y, z), rotation, nonStatic);
+        }
+        private void LoadFromDB()
+        {
+            Console.WriteLine(DateTime.Now.ToString("dd.MM hh:mm:ss") + ": Loading " + cmd + " playmode.");
+            var playModeInfo = Database.instance.get(
+                new List<string>() {
+                    "rules", "spawn_pos", "spectator", "abilities",
+                    "abilities_pos", "abilities_set", "vehicles", "weapons",
+                    "objects", "spawn_rotx", "spawn_roty", "randomize_spawn",
+                }, "samp_playmode", "name", cmd);
+            var spectatorParams = playModeInfo["spectator"].ToString().Split(',');
+            this.spectator = new CustomSpectator(
+                new Vector3(Convert.ToDouble(spectatorParams[0], CultureInfo.InvariantCulture), Convert.ToDouble(spectatorParams[1], CultureInfo.InvariantCulture), Convert.ToDouble(spectatorParams[2], CultureInfo.InvariantCulture)),
+                Convert.ToInt32(spectatorParams[3], CultureInfo.InvariantCulture), Convert.ToInt32(spectatorParams[4], CultureInfo.InvariantCulture));
+            double spawn_rotx = 0.0;
+            double spawn_roty = 0.0;
+            var randomizeSpawn = 0;
+            try { spawn_rotx = Convert.ToDouble(playModeInfo["spawn_rotx"].ToString()); } catch { }
+            try { spawn_roty = Convert.ToDouble(playModeInfo["spawn_roty"].ToString()); } catch { }
+            try { randomizeSpawn = Convert.ToInt32(playModeInfo["randomize_spawn"].ToString()); } catch { }
+            var spawns = utils.flatToVectorList(playModeInfo["spawn_pos"].ToString());
+            Console.WriteLine(DateTime.Now.ToString("dd.MM hh:mm:ss") + ": Spawn positions amount: " + spawns.Count.ToString() + ".");
+            SetStartPosition(spawns, spawn_rotx, spawn_roty, randomizeSpawn);
+            rules = playModeInfo["rules"].ToString();
+            var vehicleData = utils.unpackData(playModeInfo["vehicles"].ToString(), 6);
+            Console.WriteLine(DateTime.Now.ToString("dd.MM hh:mm:ss") + ": Vehicles amount: " + vehicleData.Count.ToString() + ".");
+            foreach (var veh in vehicleData)
+            {
+                var stringid = veh[0].ToString();
+                if (stringid.Contains('|')) stringid = utils.getRandomFromFlat(veh[0].ToString(), '|');
+                CreateVehicle(
+                    Convert.ToInt32(stringid),
+                    Convert.ToDouble(veh[1], CultureInfo.InvariantCulture),
+                    Convert.ToDouble(veh[2], CultureInfo.InvariantCulture),
+                    Convert.ToDouble(veh[3], CultureInfo.InvariantCulture),
+                    Convert.ToDouble(veh[4], CultureInfo.InvariantCulture),
+                    Convert.ToBoolean(Convert.ToInt32(veh[5])));
+            }
+            var objectsData = utils.unpackData(playModeInfo["objects"].ToString(), 7);
+            Console.WriteLine(DateTime.Now.ToString("dd.MM hh:mm:ss") + ": Objects amount: " + objectsData.Count.ToString() + ".");
+            foreach (var obj in objectsData)
+            {
+                CreateObject(
+                    Convert.ToInt32(obj[0]),
+                    Convert.ToDouble(obj[1], CultureInfo.InvariantCulture),
+                    Convert.ToDouble(obj[2], CultureInfo.InvariantCulture),
+                    Convert.ToDouble(obj[3], CultureInfo.InvariantCulture),
+                    Convert.ToDouble(obj[4], CultureInfo.InvariantCulture),
+                    Convert.ToDouble(obj[5], CultureInfo.InvariantCulture),
+                    Convert.ToDouble(obj[6], CultureInfo.InvariantCulture));
+            }
+            if(playModeInfo["abilities"].ToString().Length>0) { 
+                var abilitiesData = playModeInfo["abilities"].ToString().Split(",");
+                var abilitesArray = new List<Ability> { };
+                foreach (var ability in abilitiesData) 
+                    foreach (var knownAbility in Abilities.abilities)
+                        if (knownAbility != null && knownAbility.name == ability) 
+                            abilitesArray.Add(knownAbility);
+
+                var abilitiesVectors = utils.flatToVectorList(playModeInfo["abilities_pos"].ToString());
+                var settings = playModeInfo["abilities_set"].ToString().Split(',');
+                abilitiesSpawner.Setup(abilitesArray, abilitiesVectors, Convert.ToInt32(settings[0]), Convert.ToInt32(settings[1]));
+                Console.WriteLine(DateTime.Now.ToString("dd.MM hh:mm:ss") + ": Spawned " + abilitesArray.Count.ToString() + " abilities in "+abilitiesVectors.Count.ToString()+" locations with settings: " + settings[0] +", "+ settings[1]);
+            }
+            if (playModeInfo["weapons"].ToString().Length > 0)
+            {
+                var weaponsData = utils.unpackData(playModeInfo["weapons"].ToString(), 4);
+                ItemWeapon test = WeaponItems.MP5;
+                foreach (var weapon in weaponsData)
+                {
+                    try
+                    {
+                        ItemWeapon.createdWeapons[utils.getRandomFromFlat(weapon[0], '|')].Spawn(
+                            new Vector3(
+                                (float)Convert.ToDouble(weapon[1], CultureInfo.InvariantCulture),
+                                (float)Convert.ToDouble(weapon[2], CultureInfo.InvariantCulture),
+                                (float)Convert.ToDouble(weapon[3], CultureInfo.InvariantCulture)+0.72),
+                            new Vector3(0, 0, 0), -1);
+                    }
+                    catch (Exception ex) { }
+                }
+                Console.WriteLine(DateTime.Now.ToString("dd.MM hh:mm:ss") + ": Spawned " + weaponsData.Count.ToString() + " weapons.");
+            }
+            InitializeInfoTD();
+        }
         public void Start(List<Player> players)
         {
+            LoadFromDB();
             InitializeStatics();
             foreach (var player in players)
-            {
+            {  
+                player.dialogs = new Dictionary<string, TDialog>();
                 InitializePlayer(player);
             }
             spectator.Enable();
@@ -183,17 +271,18 @@ namespace partymode
             {
                 HideRules(player);
                 DisplayRules(player);
-                if (autoBegin) StaticTimer.RunAsync(TimeSpan.FromSeconds(5), () => HideRules(player));
+                player.addTask(HideRules, 5000);
             }
+            OverwriteJoinBehaviour(begin, player);
         }
         public void DisplayRules(BasePlayer player)
         {
-            infoTd.Text = rules;
-            infoTd.Show(player);
+            /*infoTd.Text = rules;*/
+            /*infoTd.Show(player);*/
         }
         public void HideRules(BasePlayer player)
         {
-            infoTd.Hide(player);
+            /*infoTd.Hide(player);*/
         }
         
         public void RequestBegin(List<Player> players, int time)
@@ -225,12 +314,13 @@ namespace partymode
             }
             staticVehicles.Clear();
             staticObjects.Clear();
-            foreach(var player in players) HideRules(player);
+            foreach (var player in players) HideRules(player);
             Abilities.CleanUp();
         }
         public abstract void InitializeStatics();
         protected abstract void OnStart(List<Player> players);
         protected abstract void OnEnd(List<Player> players);
+        public virtual void OverwriteJoinBehaviour(bool begin, Player player) { }
         public virtual void OverwriteDeathBehaviour(Player player) { }
         public virtual bool OverwriteSpawnBehaviour(Player player) {
             InitializePlayer(player);

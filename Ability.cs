@@ -12,7 +12,7 @@ namespace partymode
 {
     public class TDID
     {
-        private static int _id;
+        private static int _id=1;
         public static int value { get { return _id++; } }
     }
     public abstract class Ability
@@ -23,19 +23,21 @@ namespace partymode
             PlayerAbility=1
         };
         private int keyToActivate;
-        private TextDraw td = TextDraw.Create(TDID.value);
+        private TextDraw td = new TextDraw();
         private CustomPickupFactory pickupFactory;
         private AbilityType abtype;
         public int WarmOffMS = 0;
+        public string name { get; private set; }
 
         protected Ability(
+            string name,
             string tdText, 
             AbilityType atype, 
             CustomPickupFactory.PickupModel model, 
             CustomPickupFactory.PickupType type, 
             int keyActivated = -1) 
         {
-
+            this.name = name;
             keyToActivate = keyActivated;
             abtype = atype;
             td.Hide();
@@ -69,14 +71,14 @@ namespace partymode
                             player.countDown.Setup(WarmOffMS / 1000, "~r~0");
                         if (abtype == AbilityType.PlayerAbility) player.pabilityWarmedOff = false;
                         else player.vabilityWarmedOff = false;
-                        StaticTimer.RunAsync(new TimeSpan(0, 0, 0, 0, WarmOffMS), () =>
+                        player.addTask((Player p) =>
                         {
                             if (player != null && player.IsConnected && player.IsAlive) {
                                 OnWarmOffEnd(player);
                                 if (abtype == AbilityType.PlayerAbility) player.pabilityWarmedOff = true;
                                 else player.vabilityWarmedOff = true;
                             }
-                        });
+                        }, WarmOffMS);
                     }
                     DetachFromPlayer(player);
                 }

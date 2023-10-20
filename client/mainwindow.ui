@@ -6,18 +6,15 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>454</width>
-    <height>348</height>
+    <width>504</width>
+    <height>392</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
   <property name="styleSheet">
-   <string notr="true">#centralwidget {
-	background-color: rgb(21, 6, 17);
-	
-}</string>
+   <string notr="true"/>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0,2,0">
@@ -34,21 +31,15 @@
      <number>0</number>
     </property>
     <item>
-     <widget class="QLabel" name="label_2">
+     <widget class="QLabel" name="logoLabel">
       <property name="styleSheet">
-       <string notr="true">font-size: 24px;
-font-weight: 600;
-color: rgb(234, 234, 234);
-background-color: rgb(30, 12, 34);
-padding-top:12px;
-padding-bottom:10px;
-border-bottom: 2px solid rgb(64, 20, 87);</string>
+       <string notr="true"/>
       </property>
       <property name="text">
        <string>WZGaming</string>
       </property>
       <property name="alignment">
-       <set>Qt::AlignCenter</set>
+       <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
       </property>
      </widget>
     </item>
@@ -79,35 +70,7 @@ border-bottom: 2px solid rgb(64, 20, 87);</string>
           </size>
          </property>
          <property name="styleSheet">
-          <string notr="true">QPushButton {
-  background-color: rgb(38, 143, 71);
-  border: 1px solid transparent;
-  border-radius: 5px;
-  color: #FFFFFF;
-  font-family: &quot;Inter var&quot;,ui-sans-serif,system-ui,-apple-system,system-ui,&quot;Segoe UI&quot;,Roboto,&quot;Helvetica Neue&quot;,Arial,&quot;Noto Sans&quot;,sans-serif,&quot;Apple Color Emoji&quot;,&quot;Segoe UI Emoji&quot;,&quot;Segoe UI Symbol&quot;,&quot;Noto Color Emoji&quot;;
-  font-size: 14px;
-  font-weight: 600;
-	padding-top: 5px;
-	padding-bottom: 5px;
-}
-
-QPushButton:hover {
-  background-color: rgb(97, 255, 94);
-}
-
-QPushButton::disabled {
-	background-color: rgb(116, 116, 116);
-	color: rgb(190,190,190);
-}
-QLineEdit {
-	border: 2px solid rgb(63, 17, 75);
-	background-color: rgb(40, 18, 58);
-	font-size: 14px;
-	color:white;
-	padding-top: 2px;
-	padding-bottom: 2px;
-	font-weight: 600;
-}</string>
+          <string notr="true"/>
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_2">
           <property name="spacing">
@@ -118,6 +81,14 @@ QLineEdit {
           </item>
           <item alignment="Qt::AlignTop">
            <widget class="PlayerData" name="playerWidget" native="true"/>
+          </item>
+          <item>
+           <widget class="PlayerCarWidget" name="playerCarWidget" native="true"/>
+          </item>
+          <item>
+           <widget class="QWidget" name="widget_3" native="true">
+            <layout class="QHBoxLayout" name="horizontalLayout"/>
+           </widget>
           </item>
          </layout>
         </widget>
@@ -148,6 +119,12 @@ QLineEdit {
    <class>PlayerData</class>
    <extends>QWidget</extends>
    <header>playerdata.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>PlayerCarWidget</class>
+   <extends>QWidget</extends>
+   <header>playercarwidget.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

@@ -1,5 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include "static/StylesheetLoader.h"
+
 
 /*.\f -c -h 127.0.0.1 -p 7777 -n Solis*/
 /*https://www.7-zip.org/a/7z2301-extra.7z*/
@@ -14,8 +16,10 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    StylesheetLoader::loadInto("main.css", this);
     ui->loginWidget333->hide();
     ui->playerWidget->hide();
+    ui->playerCarWidget->hide();
     connect(ui->playerWidget, &PlayerData::runRequested, this, &MainWindow::tryPlay);
     connect(ui->connectionWidget, &Connection::connected, this, &MainWindow::connectedToServer);
     connect(ui->connectionWidget, &Connection::disconnected, this, &MainWindow::disconnectedFromServer);
@@ -23,7 +27,10 @@ MainWindow::MainWindow(QWidget *parent)
         ui->loginWidget->hide();
         ui->playerWidget->updateData(login);
         ui->playerWidget->show();
+        ui->playerCarWidget->show();
+        ui->playerCarWidget->logedIn(login);
     });
+    connect(ui->playerCarWidget, &PlayerCarWidget::refreshUserData, ui->playerWidget, &PlayerData::updateData);
 }
 
 MainWindow::~MainWindow()
@@ -48,6 +55,7 @@ void MainWindow::disconnectedFromServer()
     ui->loginWidget->logout();
     ui->loginWidget->show();
     ui->playerWidget->hide();
+    ui->playerCarWidget->hide();
 }
 
 void MainWindow::tryPlay(const QString& login)

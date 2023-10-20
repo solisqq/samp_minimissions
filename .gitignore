@@ -4,3 +4,6 @@ bin/
 .git/
 .filenesting.json
 empty.amx
+*.TMP
+clientbuild/
+build/

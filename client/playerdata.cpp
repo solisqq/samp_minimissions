@@ -14,7 +14,6 @@ PlayerData::PlayerData(QWidget *parent) :
         auto response = obj.value("status").toString("fail");
         if(response!="success") return;
         QString path = ":/skins/normal/Skin_"+obj.value("skin").toString("1")+".png";
-        qDebug()<<path;
         ui->skinBtn->setStyleSheet("border-image:url("+path+");");
         ui->loginLabel->setText(obj.value("login").toString("User"));
         ui->scoreLabel->setText(obj.value("score").toString("0"));

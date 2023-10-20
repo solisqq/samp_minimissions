@@ -13,7 +13,7 @@ namespace partymode
         //private Abilities.AbilitiesRandomSpawner abilitiesSpawner;
         public LSLongRacePlayMode() : 
             base(
-                "racels", 
+                "racels")/*,
                 new CustomSpectator(new Vector3(2494.8, -1665.3, 13.3), 60, 5000),
                 "Tryb rozgrywki: ~g~Wyscig LS~w~~n~Wystartuj i ukoncz pierwszy/a.~n~Mozesz zmieniac pojazdy lub nie~n~- Twoja decyzja!",
                 new List<Vector3>
@@ -47,7 +47,7 @@ namespace partymode
                     new Vector3(2498.8999,-1668.9,13.3),
                     new Vector3(2518.3,-1656.1,15.3),
                 }, 
-                0, 0, 1) 
+                0, 0, 1)*/
         {
             race = new Race(new List<Vector3> {
                 new Vector3(2464.6001,-1658.8,13.3),

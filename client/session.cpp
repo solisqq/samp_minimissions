@@ -28,7 +28,6 @@ Session::Session(QWidget *parent) :
         auto data = file.readAll();
         if(data.length()>5) {
             auto jsonobj = QJsonDocument::fromJson(data).object();
-            qDebug()<<jsonobj.value("login").toString("");
             ui->loginEdit->setText(jsonobj.value("login").toString(""));
             ui->passEdit->setText(jsonobj.value("password").toString(""));
         }

@@ -16,7 +16,10 @@ namespace partymode
             public class AdminPermissionChecker : IPermissionChecker
             {
                 public string Message { get { return "Brakuje Ci uprawnien do uzycia tej komendy."; } }
-                public bool Check(BasePlayer player) { return player.IsAdmin; }
+                public bool Check(BasePlayer player) {
+                    var checkAdmin = Database.instance.get<int>("admin", "samp_player", "name", player.Name,0);
+                    return player.IsAdmin || (checkAdmin.Key==true && checkAdmin.Value>3); 
+                }
             }
             [Command("spawn", PermissionChecker = typeof(AdminPermissionChecker))]
             private static void SpawnCar(BasePlayer sender, BasePlayer player, int vid)

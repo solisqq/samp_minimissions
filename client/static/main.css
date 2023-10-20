@@ -1,0 +1,53 @@
+#centralwidget {
+    background-color: rgb(10, 16, 38);
+}
+QPushButton {
+    background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:1, stop:0 rgba(18, 172, 121, 255), stop:1 rgba(56, 172, 195, 255));
+    border: 1px solid transparent;
+    border-radius: 5px;
+    color: #FFFFFF;
+    font-family: "Inter var",ui-sans-serif,system-ui,-apple-system,system-ui,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
+    font-size: 15px;
+    font-weight: 600;
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+
+QPushButton:hover {
+    background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:1, stop:0 rgba(56, 172, 195, 255), stop:1 rgba(18, 172, 121, 255));
+}
+
+QPushButton::disabled {
+    background-color: rgb(116, 116, 116);
+    color: rgb(190,190,190);
+}
+#logoLabel {
+    font-size: 28px;
+    font-weight: 700;
+    color: rgb(6, 9, 25);
+    background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:1, stop:0 rgba(18, 172, 121, 255), stop:1 rgba(56, 172, 195, 255));
+    padding-top:10px;
+    padding-bottom:10px;
+    border-bottom: 1px solid rgba(28, 192, 141,150);
+    padding-left: 24px;
+    text-decoration: underline;
+}
+#credentialsContainer {
+    background-color: rgb(16, 25, 59);
+    border-radius: 14px;
+    border: 2px solid rgb(20, 30, 70);
+}
+QPushButton::disabled {
+    background-color: rgb(116, 116, 116);
+    color: rgb(190,190,190);
+}
+QLineEdit {
+    border: 1px solid rgba(28, 192, 141, 220);
+    border-radius: 4px;
+    background-color: rgba(10, 16, 38, 220);
+    font-size: 14px;
+    color:white;
+    padding-top: 4px;
+    padding-bottom: 4px;
+    font-weight: 600;
+}

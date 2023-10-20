@@ -92,7 +92,8 @@ namespace partymode
                 invisibilePAbility,
                 invulnerablePAbility,
                 superExplodePAbility,
-                superPunchPAbility
+                superPunchPAbility,
+                restorHealthPAbility
             };
         public static void CleanUp()
         {
@@ -101,6 +102,7 @@ namespace partymode
         public class SpeedUpVAbility : Ability
         {
             public SpeedUpVAbility() : base(
+                "przyspieszenie",
                 "~g~ALT~w~ PRZYSPIESZENIE",
                 AbilityType.VehicleAbility,
                 CustomPickupFactory.PickupModel.AdrenalinePill,
@@ -126,6 +128,7 @@ namespace partymode
         public class JumpVAbility : Ability
         {
             public JumpVAbility() : base(
+                "podskok",
                 "~g~ALT~w~ PODSKOK",
                 AbilityType.VehicleAbility,
                 CustomPickupFactory.PickupModel.GreenArrowUp,
@@ -148,6 +151,7 @@ namespace partymode
         public class RepairVAbility : Ability
         {
             public RepairVAbility() : base(
+                "vpancerz",
                 "Pancerz pojazdu ~g~odnowiony~w~!",
                 AbilityType.VehicleAbility,
                 CustomPickupFactory.PickupModel.Repair,
@@ -202,6 +206,7 @@ namespace partymode
 
             private List<Mine> mines = new List<Mine>();
             public PlantMineVAbility() : base(
+                "mina",
                 "~g~ALT~w~ PODLOZ MINE",
                 AbilityType.VehicleAbility,
                 CustomPickupFactory.PickupModel.GreyBomb,
@@ -232,6 +237,7 @@ namespace partymode
         public class JumpPAbility : Ability
         {
             public JumpPAbility() : base(
+                "skok",
                 "~g~ALT~w~ WYSOKI SKOK",
                 AbilityType.PlayerAbility,
                 CustomPickupFactory.PickupModel.Cocaine,
@@ -257,6 +263,7 @@ namespace partymode
         public class InvisibilePAbility : Ability
         {
             public InvisibilePAbility() : base(
+                "niewidzialnosc",
                 "~g~ALT~w~ NIEWIDZIALNOSC~n~(4 sekundy)",
                 AbilityType.PlayerAbility,
                 CustomPickupFactory.PickupModel.Tiki,
@@ -271,10 +278,13 @@ namespace partymode
                     player.VirtualWorld = 1;//285
                     var pSkin = player.Skin;
                     player.Skin = 285;
-                    StaticTimer.RunAsync(new TimeSpan(0, 0, 0, 0, WarmOffMS + 50), () => {
+                    player.addTask(delegate (Player p) {
+                        p.Skin = pSkin;
+                    }, WarmOffMS + 50);
+                    /*StaticTimer.RunAsync(new TimeSpan(0, 0, 0, 0, WarmOffMS + 50), () => {
                         if (player != null && player.IsConnected && player.IsAlive)
                             player.Skin = pSkin;
-                    });
+                    });*/
                     return true;
                 }
                 return false;
@@ -287,6 +297,7 @@ namespace partymode
         public class InvulnerablePAbility : Ability
         {
             public InvulnerablePAbility() : base(
+                "niesmiertelnosc",
                 "~g~ALT~w~ NIESMIERTELNOSC~n~(4 sekundy)",
                 AbilityType.PlayerAbility,
                 CustomPickupFactory.PickupModel.Armor,
@@ -304,14 +315,19 @@ namespace partymode
                     player.Armour = 100;
                     player.Skin = 167;
                     player.TakeDamage += Player_TakeDamage;
-                    StaticTimer.RunAsync(new TimeSpan(0, 0, 0, 0, WarmOffMS + 50), () => {
+                    player.addTask(delegate (Player p) {
+                        player.Health = pHealth;
+                        player.Armour = pArmor;
+                        player.Skin = pSkin;
+                    }, WarmOffMS + 50);
+                    /*StaticTimer.RunAsync(new TimeSpan(0, 0, 0, 0, WarmOffMS + 50), () => {
                         if (player != null && player.IsConnected && player.IsAlive)
                         {
                             player.Health = pHealth;
                             player.Armour = pArmor;
                             player.Skin = pSkin;
                         }
-                    });
+                    });*/
                     return true;
                 }
                 return false;
@@ -331,6 +347,7 @@ namespace partymode
         public class SuperExplodePAbility : Ability
         {
             public SuperExplodePAbility() : base(
+                "kamikaze",
                 "~g~ALT~w~ KAMIKAZE~n~(wybuchasz po 3s)",
                 AbilityType.PlayerAbility,
                 CustomPickupFactory.PickupModel.SingleSkull,
@@ -344,10 +361,13 @@ namespace partymode
                 {
                     var pSkin = player.Skin;
                     player.Skin = 264;
-                    StaticTimer.RunAsync(new TimeSpan(0, 0, 0, 0, WarmOffMS + 50), () => {
+                    player.addTask(delegate (Player p) {
+                        p.Skin = pSkin;
+                    }, WarmOffMS + 50);
+/*                    StaticTimer.RunAsync(new TimeSpan(0, 0, 0, 0, WarmOffMS + 50), () => {
                         if (player != null && player.IsConnected && player.IsAlive)
                             player.Skin = pSkin;
-                    });
+                    });*/
                     return true;
                 }
                 return false;
@@ -362,6 +382,7 @@ namespace partymode
         public class SuperPunchPAbility : Ability
         {
             public SuperPunchPAbility() : base(
+                "sierpowy",
                 "~r~POTEZNY ~b~SIERPOWY~n~~w~(nastepny cios)",
                 AbilityType.PlayerAbility,
                 CustomPickupFactory.PickupModel.BoxingGlove,
@@ -392,9 +413,12 @@ namespace partymode
                 player.Armour = 100;
                 BasePlayer.CreateExplosionForAll(
                     player.Position, SampSharp.GameMode.Definitions.ExplosionType.NormalVisibleDamageFlash2, 3.0f);
-                StaticTimer.RunAsync(new TimeSpan(0, 0, 0, 0, 100), () => {
+                player.addTask(delegate (Player p) {
+                    p.Armour = 0;
+                }, WarmOffMS + 50);
+                /*StaticTimer.RunAsync(new TimeSpan(0, 0, 0, 0, 100), () => {
                     if (player != null && player.IsConnected && player.IsAlive) player.Armour = 0; 
-                });
+                });*/
                 DetachFromPlayer(player);
             }
             protected override void OnDetach(Player player)
@@ -407,6 +431,7 @@ namespace partymode
         public class RestorHealthPAbility : Ability
         {
             public RestorHealthPAbility() : base(
+                "zycie",
                 "~w~ODNOWIONO ~r~ZYCIE~n~~w~TYMCZASOWY ~g~PANCERZ ~w~(5s)",
                 AbilityType.PlayerAbility,
                 CustomPickupFactory.PickupModel.Kebab,

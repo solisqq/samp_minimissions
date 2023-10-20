@@ -1,6 +1,7 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+#include <CarsDialog.h>
 #include <QMainWindow>
 #include <QProcess>
 #include <QTimer>
