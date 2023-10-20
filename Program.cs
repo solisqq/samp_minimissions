@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
@@ -14,7 +15,11 @@ namespace partymode
         static async Task Main(string[] args)
         {
             JsonElement paths = new JsonElement();
-            using (StreamReader r = new StreamReader("G:/Solivision/vps/samp/paths.json"))
+            string pathspaths = "/home/solis/solivision/paths.json";
+            if(System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                pathspaths = "G:/Solivision/vps/samp/paths.json";
+            
+            using (StreamReader r = new StreamReader(pathspaths))
             {
                 string raw = r.ReadToEnd();
                 JsonDocument json = JsonDocument.Parse(raw);
