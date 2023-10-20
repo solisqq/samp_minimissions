@@ -19,7 +19,7 @@ namespace partymode
             if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             {
                 Console.WriteLine("WINDOWS");
-                pathspaths = "/home/solis/solivision/paths.json";
+                pathspaths = "/home/solis/solivision/samp/paths.json";
             }
             
             using (StreamReader r = new StreamReader(pathspaths))
