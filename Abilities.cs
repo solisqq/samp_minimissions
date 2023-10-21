@@ -3,6 +3,7 @@ using SampSharp.GameMode.Events;
 using SampSharp.GameMode.World;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace partymode
@@ -13,7 +14,7 @@ namespace partymode
         {
             public List<Ability> abilitiesToSpawn = new List<Ability>();
             public List<Vector3> positions = new List<Vector3>();
-            List<int> availablePositions = new List<int>();
+            HashSet<int> availablePositions = new HashSet<int>();
             int respawnTimeMS = 10000;
             System.Timers.Timer timer;
             public AbilitiesRandomSpawner()
@@ -47,20 +48,23 @@ namespace partymode
 
             private void SpawnPickup(object sender, System.Timers.ElapsedEventArgs e)
             {
+                foreach(var pos in availablePositions)
+                {
+                    Console.Write(pos.ToString()+", ");
+                }
+                Console.WriteLine();
                 if (availablePositions.Count == 0) return;
                 Random r = new Random();
                 var randomAbility = r.Next(abilitiesToSpawn.Count);
-                var randomPosition = r.Next(availablePositions.Count);
-                var newPosition = availablePositions[randomPosition];
-                var pickup = abilitiesToSpawn[randomAbility].CreatePickup(positions[newPosition], respawnTimeMS);
+                /*var randomPosition = r.Next(availablePositions.Count);*/
+                var newPosition = availablePositions.First();
+                var pickup = abilitiesToSpawn[randomAbility].CreatePickup(positions[newPosition]);
                 pickup.PickUp += new EventHandler<SampSharp.GameMode.Events.PickUpPickupEventArgs>(
                     delegate (object o, SampSharp.GameMode.Events.PickUpPickupEventArgs args) {
                         if (!availablePositions.Contains(newPosition))
                         {
-                            StaticTimer.RunAsync(new TimeSpan(0, 0, 5), ()=>availablePositions.Add(newPosition));
-                            //availablePositions.Add(newPosition);
-                        }
-                            
+                            GameMode.addTask(() => availablePositions.Add(newPosition), respawnTimeMS);
+                        }  
                     });
                 availablePositions.Remove(newPosition);
             }

@@ -10,6 +10,7 @@ namespace partymode.Widgets
         TFrame innerSlider = null;
         private double value = 0;
         int borderWidth = 1;
+        SampSharp.GameMode.SAMP.Color sliderColor;
         public TSlider(
             TextDrawInterface td,
             SampSharp.GameMode.SAMP.Color background,
@@ -18,6 +19,7 @@ namespace partymode.Widgets
             PointF pos = default) :
             base(td, background, size, marginTBLR)
         {
+            sliderColor = foreground;
             innerSlider = new TFrame(
                 td.makeEmptyCopy(),
                 foreground,
@@ -33,6 +35,10 @@ namespace partymode.Widgets
         public void setValue(double value)
         {
             this.value = value;
+            if (value == 0) innerSlider.graphic.setBoxColor(graphic.getBoxColor());
+            else if(innerSlider.graphic.getBoxColor().ToInteger(SampSharp.GameMode.SAMP.ColorFormat.RGBA) == 
+                graphic.getBoxColor().ToInteger(SampSharp.GameMode.SAMP.ColorFormat.RGBA))
+                innerSlider.graphic.setBoxColor(sliderColor);
             redraw();
         }
         public override void redraw()

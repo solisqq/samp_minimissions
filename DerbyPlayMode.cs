@@ -9,25 +9,11 @@ namespace partymode
 {
     class DerbyPM : PlayMode
     {
-        Timer rewardTimer;
         public DerbyPM() : base("derby")
         { 
-            rewardTimer = new Timer(1000);
-            rewardTimer.Elapsed += HandleReward;
             scoreLimit = 2000;
         }
 
-        private void HandleReward(object sender, ElapsedEventArgs e)
-        {
-            foreach(var player in GameMode.GetPlayers())
-            {
-                if(player.IsConnected && player.IsAlive && begin)
-                {
-                    if (player.InAnyVehicle) player.AddScore(7);
-                    else player.AddScore(5);
-                }
-            }
-        }
         public override void InitializeStatics()
         {
         }
@@ -67,12 +53,13 @@ namespace partymode
 
         protected override void OnEnd(List<Player> players)
         {
-            
-            rewardTimer.Stop();
+          
         }
 
         protected override void OnStart(List<Player> players)
         {
+            // Reward over time (points added over time)
+            addAttribute(new OverTimeReward(4000, 10, (Player player) => { return (player.IsAlive && player.IsConnected && begin); }));
             foreach (var player in players)
             {
                 player.ToggleControllable(false);
@@ -83,7 +70,6 @@ namespace partymode
             {
                 player.ToggleControllable(true);
             }
-            rewardTimer.Start();
         }
         
     }

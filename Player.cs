@@ -66,9 +66,10 @@ namespace partymode
         public Ability pability = null;
         public bool vabilityWarmedOff = true;
         public bool pabilityWarmedOff = true;
+        public bool initializedAfterConnection = false;
         public CustomSpectator spectator;
         public Dictionary<string, TDialog> dialogs = new Dictionary<string, TDialog>();
-        PlayerDialog infoDialog;
+        public PlayerDialog infoDialog;
         private double internalScore=0;
         List<PlayerItem> items = new List<PlayerItem>();
         public CountDown countDown;
@@ -250,10 +251,12 @@ namespace partymode
                 return;
             }
             GameTextForAll("~g~" + timeInSeconds.ToString(), 999, 6);
-            StaticTimer.RunAsync(new TimeSpan(0, 0, 1), () => {
+            GameMode.addTask(() =>
+            {
                 timeInSeconds -= 1;
                 GlobalCountdown(timeInSeconds, textOnFinish, actionOnFinish);
-            });
+            }, 1000);
+            /*StaticTimer.RunAsync(new TimeSpan(0, 0, 1), );*/
         }
     }
 }

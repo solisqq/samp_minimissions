@@ -95,9 +95,10 @@ namespace partymode
             }
             td.Show(player);
             if (keyToActivate<0)
-                StaticTimer.RunAsync(new TimeSpan(0,0,5), ()=> { 
-                    if(player!=null && player.IsConnected) 
-                        DetachFromPlayer(player); });
+                GameMode.addTask(() => {
+                    if (player != null && player.IsConnected)
+                        DetachFromPlayer(player);
+                }, 5000);
             Initialize(player);
         }
         public void OnPlayerExitVehicle(PlayerVehicleEventArgs e)
@@ -125,9 +126,9 @@ namespace partymode
             }
             else if (Activate(player) && WarmOffMS > 0)
             {
-                StaticTimer.RunAsync(new TimeSpan(0, 0, 0, 0, WarmOffMS), () =>{
+                GameMode.addTask(() =>{
                     if (player != null && player.IsConnected && player.IsAlive) 
-                        OnWarmOffEnd(player);});
+                        OnWarmOffEnd(player);}, WarmOffMS);
             }
             
             OnPickUp(player);

@@ -8,9 +8,11 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 using System.Timers;
+using System.Xml.Serialization;
 
 namespace partymode
 {
@@ -20,12 +22,13 @@ namespace partymode
         protected bool begin = false;
         private string rules = "";
         protected CustomSpectator spectator;
-        protected List<Vector3> SpawnPositions;
+        protected List<SampSharp.GameMode.Vector3> SpawnPositions;
         protected bool autoBegin = false;
         protected List<GlobalObject> staticObjects = new List<GlobalObject>();
         protected List<BaseVehicle> staticVehicles = new List<BaseVehicle>();
+        protected List<PMAttribute> pmAttributes = new List<PMAttribute>();
         protected Abilities.AbilitiesRandomSpawner abilitiesSpawner = new Abilities.AbilitiesRandomSpawner();
-        public Vector3 startRotation { get; private set; }
+        public SampSharp.GameMode.Vector3 startRotation { get; private set; }
         private System.Timers.Timer beginCountDown;
         private int beginCountDownCounter;
         private int _newRandomSpawnPosition = 0;
@@ -75,6 +78,10 @@ namespace partymode
             beginCountDownCounter = timeInSec;
             beginCountDown.Start();
         }
+        protected void addAttribute(PMAttribute attribute)
+        {
+            pmAttributes.Add(attribute);
+        }
         
         private void BeginCountDown_Elapsed(object sender = null, ElapsedEventArgs e=null)
         {
@@ -92,12 +99,13 @@ namespace partymode
                     HideRules(player);
                 
                 Begin(GameMode.GetPlayers());
+                foreach (var att in pmAttributes) att.onBegin(GameMode.GetPlayers());
                 abilitiesSpawner.StartSpawning();
             }
         }
         public GlobalObject CreateObject(int id, double x, double y, double z, double rotx, double roty, double rotz)
         {
-            var obj = new GlobalObject(id, new Vector3(x, y, z), new Vector3(rotx, roty, rotz));
+            var obj = new GlobalObject(id, new SampSharp.GameMode.Vector3(x, y, z), new SampSharp.GameMode.Vector3(rotx, roty, rotz));
             staticObjects.Add(obj);
             return obj;
         }
@@ -107,10 +115,10 @@ namespace partymode
             obj.Dispose();
             return obj;
         }
-        private void SetStartPosition(List<Vector3> startPositions, double rotX, double rotY, int randomize = 0)
+        private void SetStartPosition(List<SampSharp.GameMode.Vector3> startPositions, double rotX, double rotY, int randomize = 0)
         {
             SpawnPositions = startPositions;
-            startRotation = new Vector3(rotX, rotY, 0);
+            startRotation = new SampSharp.GameMode.Vector3(rotX, rotY, 0);
         }
         public List<GlobalObject> getObjects()
         {
@@ -120,7 +128,7 @@ namespace partymode
         {
             return staticVehicles;
         }
-        public BaseVehicle CreateVehicle(int id, Vector3 vect, double rotation, bool nonStatic = false)
+        public BaseVehicle CreateVehicle(int id, SampSharp.GameMode.Vector3 vect, double rotation, bool nonStatic = false)
         {
             Random r = new Random();
             BaseVehicle car;
@@ -147,7 +155,7 @@ namespace partymode
         }
         public BaseVehicle CreateVehicle(int id, double x, double y, double z, double rotation, bool nonStatic=false)
         {
-            return CreateVehicle(id, new Vector3(x, y, z), rotation, nonStatic);
+            return CreateVehicle(id, new SampSharp.GameMode.Vector3(x, y, z), rotation, nonStatic);
         }
         public BaseVehicle CreateVehicle(List<int> randomId, double x, double y, double z, double rotation, bool nonStatic = false)
         {
@@ -158,7 +166,7 @@ namespace partymode
                 toSpawn = randomId[rand.Next(0, randomId.Count)];
             }
             catch { }
-            return CreateVehicle(toSpawn, new Vector3(x, y, z), rotation, nonStatic);
+            return CreateVehicle(toSpawn, new SampSharp.GameMode.Vector3(x, y, z), rotation, nonStatic);
         }
         private void LoadFromDB()
         {
@@ -171,7 +179,7 @@ namespace partymode
                 }, "samp_playmode", "name", cmd);
             var spectatorParams = playModeInfo["spectator"].ToString().Split(',');
             this.spectator = new CustomSpectator(
-                new Vector3(Convert.ToDouble(spectatorParams[0], CultureInfo.InvariantCulture), Convert.ToDouble(spectatorParams[1], CultureInfo.InvariantCulture), Convert.ToDouble(spectatorParams[2], CultureInfo.InvariantCulture)),
+                new SampSharp.GameMode.Vector3(Convert.ToDouble(spectatorParams[0], CultureInfo.InvariantCulture), Convert.ToDouble(spectatorParams[1], CultureInfo.InvariantCulture), Convert.ToDouble(spectatorParams[2], CultureInfo.InvariantCulture)),
                 Convert.ToInt32(spectatorParams[3], CultureInfo.InvariantCulture), Convert.ToInt32(spectatorParams[4], CultureInfo.InvariantCulture));
             double spawn_rotx = 0.0;
             double spawn_roty = 0.0;
@@ -232,11 +240,11 @@ namespace partymode
                     try
                     {
                         ItemWeapon.createdWeapons[utils.getRandomFromFlat(weapon[0], '|')].Spawn(
-                            new Vector3(
+                            new SampSharp.GameMode.Vector3(
                                 (float)Convert.ToDouble(weapon[1], CultureInfo.InvariantCulture),
                                 (float)Convert.ToDouble(weapon[2], CultureInfo.InvariantCulture),
                                 (float)Convert.ToDouble(weapon[3], CultureInfo.InvariantCulture)+0.72),
-                            new Vector3(0, 0, 0), -1);
+                            new SampSharp.GameMode.Vector3(0, 0, 0), -1);
                     }
                     catch (Exception ex) { }
                 }
@@ -249,11 +257,14 @@ namespace partymode
             LoadFromDB();
             InitializeStatics();
             foreach (var player in players)
-            {  
+            {
+                player.ClearPlayer();
                 player.dialogs = new Dictionary<string, TDialog>();
                 InitializePlayer(player);
             }
             spectator.Enable();
+            foreach(var att in pmAttributes) att.onStart(GameMode.GetPlayers());
+            
             OnStart(players);
             if (autoBegin)
             {
@@ -266,14 +277,19 @@ namespace partymode
             player.Position = SpawnPositions[newRandomSpawnPosition];
             player.Rotation = startRotation;
             player.SetSpawnInfo(player.Team, player.Skin, player.Position, player.Rotation.Z);
-            player.ClearPlayer();
+            
+            foreach (var att in pmAttributes) att.onInitialize(player);
             if (!begin)
             {
                 HideRules(player);
                 DisplayRules(player);
                 player.addTask(HideRules, 5000);
             }
-            OverwriteJoinBehaviour(begin, player);
+            if (!player.initializedAfterConnection) {
+                player.initializedAfterConnection = true;
+                player.ClearPlayer();
+                OverwriteJoinBehaviour(begin, player);
+            }
         }
         public void DisplayRules(BasePlayer player)
         {
@@ -316,6 +332,9 @@ namespace partymode
             staticObjects.Clear();
             foreach (var player in players) HideRules(player);
             Abilities.CleanUp();
+            foreach(var att in pmAttributes)
+                att.onFinish(GameMode.GetPlayers());
+            pmAttributes.Clear();
         }
         public abstract void InitializeStatics();
         protected abstract void OnStart(List<Player> players);
@@ -351,6 +370,7 @@ namespace partymode
         }
         public virtual void PlayerScoreChanged(Player player, double newScore)
         {
+            player.infoDialog.updateScore((int)newScore);
             if (scoreLimit > 0 && newScore >= scoreLimit)
             {
                 List<Player> SortedList = GameMode.GetPlayers().OrderBy(item => -item.Score).ToList();
