@@ -10,13 +10,14 @@ using static partymode.WeaponLevel;
 
 namespace partymode
 {
-    class PMAttribute
+    public class PMAttribute
     {
-        protected List<Player> exceptions;
+        protected List<Player> exceptions = new List<Player>();
         protected bool invokeOnExceptions;
         protected PMAttribute(List<Player> exceptions = default(List<Player>), bool invokeOnExceptions = false)
         {
-            this.exceptions = exceptions;
+            if(exceptions != default(List<Player>))
+                this.exceptions = exceptions;
             this.invokeOnExceptions = invokeOnExceptions;
         }
         public void onStart(List<Player> players)
@@ -98,7 +99,7 @@ namespace partymode
             foreach (var player in players)
             {
                 if(condition == null || condition(player)) 
-                    player.Score += points;
+                    player.AddScore(points);
             }
         }
 

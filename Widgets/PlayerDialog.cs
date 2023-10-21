@@ -2,14 +2,17 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace partymode.Widgets
 {
-    internal class PlayerDialog : TDialog
+    public class PlayerDialog : TDialog
     {
         Player player;
         TSlider armTSlider;
         TSlider hpTSlider;
+        TLabel score;
+        
         public PlayerDialog(Player player) :
             base(new IPlayerTD(player), new SampSharp.GameMode.Vector2(547, 26),
                 TDialog.VerticalAlignment.Top, TDialog.HorizontalAlignment.Left,
@@ -52,12 +55,12 @@ namespace partymode.Widgets
                 );
             hpTSlider.setValue(player.Health);
             addChild(hpTSlider);
-
-            addChild(new TLabel(
+            score = new TLabel(
                 new IPlayerTD(player),
                 TLabel.DefaultTextStyles.DefaultText,
                 new TLabel.ContentStyle(SampSharp.GameMode.Definitions.TextDrawAlignment.Left, 32, true),
-                new Tuple<int, int, int, int>(4, -2, 4, 0), "Wynik: ~w~20"));
+                new Tuple<int, int, int, int>(4, -2, 4, 0), "Wynik: ~w~20");
+            addChild(score);
             this.player = player;
             player.Update += Player_Update;
         }
@@ -66,6 +69,10 @@ namespace partymode.Widgets
         {
             if(hpTSlider.getValue()!=player.Health) hpTSlider.setValue(player.Health);
             if(armTSlider.getValue()!=player.Armour) armTSlider.setValue(player.Armour);
+        }
+        public void updateScore(int score)
+        {
+            this.score.setText("Wynik: ~w~" + score.ToString());
         }
     }
 }

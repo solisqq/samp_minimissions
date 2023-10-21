@@ -44,7 +44,6 @@
       <Compile Include="PlayMode.cs" />
       <Compile Include="Program.cs" />
       <Compile Include="Race.cs" />
-      <Compile Include="StaticTimer.cs" />
       <Compile Include="Team.cs" />
       <Compile Include="Widgets\Frame.cs" />
       <Compile Include="Widgets\Label.cs" />

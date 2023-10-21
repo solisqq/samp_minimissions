@@ -22,6 +22,7 @@ namespace partymode
         public static Dictionary<string, PlayMode> playModes = new Dictionary<string, PlayMode>();
         public static PlayMode currentPlayMode;
         public static GameMode gm;
+        static List<System.Timers.Timer> timers = new List<System.Timers.Timer>();
         public static object SAMP { get; internal set; }
         TCPMsg serverInfoMSG;
 
@@ -74,6 +75,20 @@ namespace partymode
             foreach (var bp in BasePlayer.All)
                 playersToRet.Add((Player)bp);
             return playersToRet;
+        }
+
+        public static void addTask(Action action, int delayMS)
+        {
+            System.Timers.Timer timer = new System.Timers.Timer();
+            timer.Interval = delayMS;
+            timer.AutoReset = false;
+            timer.Elapsed += (o, e) =>
+            {
+                action.Invoke();
+                timers.Remove(timer);
+                timer.Dispose();
+            };
+            timer.Start();
         }
     }
 }
