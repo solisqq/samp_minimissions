@@ -19,15 +19,16 @@ namespace partymode
     public abstract class PlayMode
     {
         public readonly String cmd;
-        protected bool begin = false;
-        private string rules = "";
+        public TDialog rulesDialog;
+        TLabel nameLabel, rulesLabel;
+        public bool begin { get; protected set; } = false;
         protected CustomSpectator spectator;
         protected List<SampSharp.GameMode.Vector3> SpawnPositions;
-        protected bool autoBegin = false;
         protected List<GlobalObject> staticObjects = new List<GlobalObject>();
         protected List<BaseVehicle> staticVehicles = new List<BaseVehicle>();
         protected List<PMAttribute> pmAttributes = new List<PMAttribute>();
-        protected Abilities.AbilitiesRandomSpawner abilitiesSpawner = new Abilities.AbilitiesRandomSpawner();
+        protected Abilities.AbilitiesRandomSpawner vAbilitiesSpawner = new Abilities.AbilitiesRandomSpawner();
+        protected Abilities.AbilitiesRandomSpawner pAbilitiesSpawner = new Abilities.AbilitiesRandomSpawner();
         public SampSharp.GameMode.Vector3 startRotation { get; private set; }
         private System.Timers.Timer beginCountDown;
         private int beginCountDownCounter;
@@ -42,7 +43,6 @@ namespace partymode
         protected int minimumPlayersCount = 0;
         private double _scoreLimit=-1;
         public double scoreLimit { get { return _scoreLimit; } set { _scoreLimit = value; } }
-        TextDraw infoTd;
 
         public PlayMode(String command)
         {
@@ -51,22 +51,31 @@ namespace partymode
             beginCountDown = new System.Timers.Timer(1000);
             beginCountDown.AutoReset = false;
             beginCountDown.Elapsed += BeginCountDown_Elapsed;
+
+            rulesDialog = new TDialog(
+                new IGlobalTD(),
+                new SampSharp.GameMode.Vector2(320, 240), 
+                TDialog.VerticalAlignment.Center, 
+                TDialog.HorizontalAlignment.Center, 
+                TLabel.DefaultColors.Background);
+
+            nameLabel = new TLabel(
+                new IGlobalTD(),
+                TLabel.DefaultTextStyles.PlayMode,
+                new TLabel.ContentStyle(TextDrawAlignment.Left, 32, true),
+                new Tuple<int,int,int,int>(4,0,0,0),
+                "");
+
+            rulesLabel = new TLabel(
+                new IGlobalTD(),
+                TLabel.DefaultTextStyles.DefaultText,
+                new TLabel.ContentStyle(TextDrawAlignment.Left, 48, true),
+                new Tuple<int, int, int, int>(4, 0, 2, 0),
+                "");
+            rulesDialog.addChild(nameLabel);
+            rulesDialog.addChild(rulesLabel);
         }
-        private void InitializeInfoTD()
-        {
-/*            infoTd = TextDraw.Create(TDID.value);
-            infoTd.Hide();
-            infoTd.Alignment = SampSharp.GameMode.Definitions.TextDrawAlignment.Left;
-            infoTd.BackColor = SampSharp.GameMode.SAMP.Color.Black;
-            infoTd.Font = SampSharp.GameMode.Definitions.TextDrawFont.Normal;
-            infoTd.LetterSize = new Vector2(0.35, 1.2);
-            infoTd.ForeColor = SampSharp.GameMode.SAMP.Color.White;
-            infoTd.BoxColor = SampSharp.GameMode.SAMP.Color.Black;
-            infoTd.UseBox = true;
-            infoTd.Text = "";
-            infoTd.Position = new Vector2(250, 120.0);
-            infoTd.Width = 400;*/
-        }
+
         private void StartCountDown(int timeInSec)
         {
             if (timeInSec == 0)
@@ -89,19 +98,22 @@ namespace partymode
             {
                 BasePlayer.GameTextForAll("~r~"+ beginCountDownCounter.ToString(), 999, 6);
                 beginCountDownCounter--;
-            } else
-            {
-                BasePlayer.GameTextForAll("~g~Start", 3000, 6);
-                beginCountDown.AutoReset = false;
-                beginCountDown.Stop();
-                begin = true;
-                foreach(var player in GameMode.GetPlayers())
-                    HideRules(player);
-                
-                Begin(GameMode.GetPlayers());
-                foreach (var att in pmAttributes) att.onBegin(GameMode.GetPlayers());
-                abilitiesSpawner.StartSpawning();
-            }
+            } else onBegin();
+            
+        }
+        public void onBegin()
+        {
+            BasePlayer.GameTextForAll("~g~Start", 3000, 6);
+            beginCountDown.AutoReset = false;
+            beginCountDown.Stop();
+            begin = true;
+            foreach (var player in GameMode.GetPlayers())
+                rulesDialog.hide(player);
+
+            Begin(GameMode.GetPlayers());
+            foreach (var att in pmAttributes) att.onBegin(GameMode.GetPlayers());
+            pAbilitiesSpawner.StartSpawning();
+            vAbilitiesSpawner.StartSpawning();
         }
         public GlobalObject CreateObject(int id, double x, double y, double z, double rotx, double roty, double rotz)
         {
@@ -168,15 +180,26 @@ namespace partymode
             catch { }
             return CreateVehicle(toSpawn, new SampSharp.GameMode.Vector3(x, y, z), rotation, nonStatic);
         }
+        private string removeAccents(string input)
+        {
+            string decomposed = input.Normalize(NormalizationForm.FormD);
+            char[] filtered = decomposed
+                .Where(c => char.GetUnicodeCategory(c) != UnicodeCategory.NonSpacingMark)
+                .ToArray();
+            return new String(filtered);
+        }
         private void LoadFromDB()
         {
             Console.WriteLine(DateTime.Now.ToString("dd.MM hh:mm:ss") + ": Loading " + cmd + " playmode.");
             var playModeInfo = Database.instance.get(
                 new List<string>() {
-                    "rules", "spawn_pos", "spectator", "abilities",
-                    "abilities_pos", "abilities_set", "vehicles", "weapons",
+                    "fullname", "rules", "spawn_pos", "spectator", "abilities",
+                    "vabilities", "abilities_set", "vehicles", "weapons",
                     "objects", "spawn_rotx", "spawn_roty", "randomize_spawn",
                 }, "samp_playmode", "name", cmd);
+
+            nameLabel.setText(playModeInfo["fullname"].ToString());
+            rulesLabel.setText(removeAccents(playModeInfo["rules"].ToString()).Replace('ł','l'));
             var spectatorParams = playModeInfo["spectator"].ToString().Split(',');
             this.spectator = new CustomSpectator(
                 new SampSharp.GameMode.Vector3(Convert.ToDouble(spectatorParams[0], CultureInfo.InvariantCulture), Convert.ToDouble(spectatorParams[1], CultureInfo.InvariantCulture), Convert.ToDouble(spectatorParams[2], CultureInfo.InvariantCulture)),
@@ -190,7 +213,6 @@ namespace partymode
             var spawns = utils.flatToVectorList(playModeInfo["spawn_pos"].ToString());
             Console.WriteLine(DateTime.Now.ToString("dd.MM hh:mm:ss") + ": Spawn positions amount: " + spawns.Count.ToString() + ".");
             SetStartPosition(spawns, spawn_rotx, spawn_roty, randomizeSpawn);
-            rules = playModeInfo["rules"].ToString();
             var vehicleData = utils.unpackData(playModeInfo["vehicles"].ToString(), 6);
             Console.WriteLine(DateTime.Now.ToString("dd.MM hh:mm:ss") + ": Vehicles amount: " + vehicleData.Count.ToString() + ".");
             foreach (var veh in vehicleData)
@@ -218,18 +240,41 @@ namespace partymode
                     Convert.ToDouble(obj[5], CultureInfo.InvariantCulture),
                     Convert.ToDouble(obj[6], CultureInfo.InvariantCulture));
             }
-            if(playModeInfo["abilities"].ToString().Length>0) { 
-                var abilitiesData = playModeInfo["abilities"].ToString().Split(",");
-                var abilitesArray = new List<Ability> { };
-                foreach (var ability in abilitiesData) 
-                    foreach (var knownAbility in Abilities.abilities)
-                        if (knownAbility != null && knownAbility.name == ability) 
-                            abilitesArray.Add(knownAbility);
+            if (playModeInfo["abilities"].ToString().Length > 1)
+            {
+                var splittedPAbb = playModeInfo["abilities"].ToString().Split(":");
+                if (splittedPAbb.Length == 2)
+                {
+                    var pabilitiesData = splittedPAbb[0].ToString().Split(",");
+                    var pAbilitesArray = new List<Ability> { };
+                    foreach (var ability in pabilitiesData)
+                        foreach (var knownAbility in Abilities.abilities)
+                            if (knownAbility != null && knownAbility.name == ability)
+                                pAbilitesArray.Add(knownAbility);
 
-                var abilitiesVectors = utils.flatToVectorList(playModeInfo["abilities_pos"].ToString());
-                var settings = playModeInfo["abilities_set"].ToString().Split(',');
-                abilitiesSpawner.Setup(abilitesArray, abilitiesVectors, Convert.ToInt32(settings[0]), Convert.ToInt32(settings[1]));
-                Console.WriteLine(DateTime.Now.ToString("dd.MM hh:mm:ss") + ": Spawned " + abilitesArray.Count.ToString() + " abilities in "+abilitiesVectors.Count.ToString()+" locations with settings: " + settings[0] +", "+ settings[1]);
+                    var abilitiesVectors = utils.flatToVectorList(splittedPAbb[1]);
+                    var settings = playModeInfo["abilities_set"].ToString().Split(',');
+                    pAbilitiesSpawner.Setup(pAbilitesArray, abilitiesVectors, Convert.ToInt32(settings[0]), Convert.ToInt32(settings[1]));
+                    Console.WriteLine(DateTime.Now.ToString("dd.MM hh:mm:ss") + ": Spawned " + pAbilitesArray.Count.ToString() + " player abilities in " + abilitiesVectors.Count.ToString() + " locations with settings: " + settings[0] + ", " + settings[1]);
+                }
+            }
+            if (playModeInfo["vabilities"].ToString().Length > 1)
+            {
+                var splittedVAbb = playModeInfo["vabilities"].ToString().Split(":");
+                if (splittedVAbb.Length == 2)
+                {
+                    var vabilitiesData = splittedVAbb[0].ToString().Split(",");
+                    var vAbilitesArray = new List<Ability> { };
+                    foreach (var ability in vabilitiesData)
+                        foreach (var knownAbility in Abilities.abilities)
+                            if (knownAbility != null && knownAbility.name == ability)
+                                vAbilitesArray.Add(knownAbility);
+
+                    var abilitiesVectors = utils.flatToVectorList(splittedVAbb[1]);
+                    var settings = playModeInfo["abilities_set"].ToString().Split(',');
+                    vAbilitiesSpawner.Setup(vAbilitesArray, abilitiesVectors, Convert.ToInt32(settings[0]), Convert.ToInt32(settings[1]));
+                    Console.WriteLine(DateTime.Now.ToString("dd.MM hh:mm:ss") + ": Spawned " + vAbilitesArray.Count.ToString() + " vehicle abilities in " + abilitiesVectors.Count.ToString() + " locations with settings: " + settings[0] + ", " + settings[1]);
+                }
             }
             if (playModeInfo["weapons"].ToString().Length > 0)
             {
@@ -250,7 +295,6 @@ namespace partymode
                 }
                 Console.WriteLine(DateTime.Now.ToString("dd.MM hh:mm:ss") + ": Spawned " + weaponsData.Count.ToString() + " weapons.");
             }
-            InitializeInfoTD();
         }
         public void Start(List<Player> players)
         {
@@ -263,13 +307,9 @@ namespace partymode
                 InitializePlayer(player);
             }
             spectator.Enable();
-            foreach(var att in pmAttributes) att.onStart(GameMode.GetPlayers());
-            
+
             OnStart(players);
-            if (autoBegin)
-            {
-                RequestBegin(GameMode.GetPlayers(), 0);
-            }
+            foreach (var att in pmAttributes) att.onStart(GameMode.GetPlayers());
         }
         
         public void InitializePlayer(Player player)
@@ -281,24 +321,15 @@ namespace partymode
             foreach (var att in pmAttributes) att.onInitialize(player);
             if (!begin)
             {
-                HideRules(player);
-                DisplayRules(player);
-                player.addTask(HideRules, 5000);
+                rulesDialog.hide(player);
+                rulesDialog.show(player);
+                /*player.addTask((p)=>rulesDialog.hide(), 5000);*/
             }
             if (!player.initializedAfterConnection) {
                 player.initializedAfterConnection = true;
                 player.ClearPlayer();
                 OverwriteJoinBehaviour(begin, player);
             }
-        }
-        public void DisplayRules(BasePlayer player)
-        {
-            /*infoTd.Text = rules;*/
-            /*infoTd.Show(player);*/
-        }
-        public void HideRules(BasePlayer player)
-        {
-            /*infoTd.Hide(player);*/
         }
         
         public void RequestBegin(List<Player> players, int time)
@@ -314,10 +345,11 @@ namespace partymode
             StartCountDown(time);
         }
         protected virtual void Begin(List<Player> players) { }
-        public void Finish(List<Player> players)
+        public void Finish(List<Player> players, bool updateScore=true)
         {
             OnEnd(players);
-            abilitiesSpawner.StopSpawning();
+            vAbilitiesSpawner.StopSpawning();
+            pAbilitiesSpawner.StopSpawning();
             begin = false;
             spectator.Disable();
             foreach (var veh in staticVehicles)
@@ -330,7 +362,11 @@ namespace partymode
             }
             staticVehicles.Clear();
             staticObjects.Clear();
-            foreach (var player in players) HideRules(player);
+            foreach (var player in players)
+            {
+                rulesDialog.hide(player);
+                if (updateScore) player.infoDialog.addToOverallScore(player.Score);
+            }
             Abilities.CleanUp();
             foreach(var att in pmAttributes)
                 att.onFinish(GameMode.GetPlayers());
@@ -342,6 +378,7 @@ namespace partymode
         public virtual void OverwriteJoinBehaviour(bool begin, Player player) { }
         public virtual void OverwriteDeathBehaviour(Player player) { }
         public virtual bool OverwriteSpawnBehaviour(Player player) {
+            foreach (var att in pmAttributes) att.onSpawn(player);
             InitializePlayer(player);
             return false; 
         }
@@ -363,7 +400,6 @@ namespace partymode
                 foreach(var player in GameMode.GetPlayers())
                 {
                     spectator.EnableSpectatingForPlayer(player);
-                    //infoTd.Text = reason;
                     //qinfoTd.Show();
                 }
             }

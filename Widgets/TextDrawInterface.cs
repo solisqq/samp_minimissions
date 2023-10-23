@@ -115,11 +115,9 @@ namespace partymode.Widgets
     public class IGlobalTD : TextDrawInterface
     {
         TextDraw td = null;
-        Player player;
-        public IGlobalTD(Player player)
+        public IGlobalTD()
         {
             td = new TextDraw();
-            this.player = player;
         }
 
         public TextDrawAlignment getAlignment() { return td.Alignment; }
@@ -171,7 +169,7 @@ namespace partymode.Widgets
 
         public TextDrawInterface makeEmptyCopy()
         {
-            return new IGlobalTD(player);
+            return new IGlobalTD();
         }
     }
 }

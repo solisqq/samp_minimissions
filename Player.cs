@@ -162,6 +162,7 @@ namespace partymode
                 SetSkillLevel((WeaponSkill)i, 200);
             PutCameraBehindPlayer();
         }
+
         public void AddScore(double scoreToAdd)
         {
             internalScore = (internalScore + scoreToAdd);

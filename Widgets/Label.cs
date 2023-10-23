@@ -84,10 +84,11 @@ namespace partymode.Widgets
             int linesCount = textInfo.Item2;
             int textMaxLength = textInfo.Item3;
             this.text = textInfo.Item1;
-
-            size = new Size(
-                (int)(textStyle.size.X * 17.3 * textMaxLength) + marginsTBLR.Item3 + marginsTBLR.Item4,
-                (int)(textStyle.size.Y * 9 * linesCount) + contentStyle.topMargin + contentStyle.bottomMargin + marginsTBLR.Item1 + marginsTBLR.Item2);
+            int width = (int)(textStyle.size.X * 17.3 * textMaxLength) + marginsTBLR.Item3 + marginsTBLR.Item4;
+            int height = (int)(textStyle.size.Y * 9 * linesCount) + contentStyle.topMargin + contentStyle.bottomMargin + marginsTBLR.Item1 + marginsTBLR.Item2;
+            if (width == size.Width && height == size.Height) return;
+            size = new Size(width, height);
+            raiseRedraw();
         }
         public override void redraw()
         {

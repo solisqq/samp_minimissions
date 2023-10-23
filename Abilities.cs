@@ -48,11 +48,6 @@ namespace partymode
 
             private void SpawnPickup(object sender, System.Timers.ElapsedEventArgs e)
             {
-                foreach(var pos in availablePositions)
-                {
-                    Console.Write(pos.ToString()+", ");
-                }
-                Console.WriteLine();
                 if (availablePositions.Count == 0) return;
                 Random r = new Random();
                 var randomAbility = r.Next(abilitiesToSpawn.Count);

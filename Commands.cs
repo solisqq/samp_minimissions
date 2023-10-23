@@ -86,8 +86,7 @@ namespace partymode
             [Command("load", PermissionChecker = typeof(AdminPermissionChecker))]
             private static void LoadMap(BasePlayer sender, string mapName)
             {
-
-                GameMode.gm.setCurrentModeByName(mapName);
+                GameMode.gm.setCurrentModeByName(mapName, false);
             }
             [Command("begin", PermissionChecker = typeof(AdminPermissionChecker))]
             private static void BeginMode(BasePlayer sender, int time)

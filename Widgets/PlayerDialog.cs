@@ -12,7 +12,8 @@ namespace partymode.Widgets
         TSlider armTSlider;
         TSlider hpTSlider;
         TLabel score;
-        
+        TLabel overallScore;
+
         public PlayerDialog(Player player) :
             base(new IPlayerTD(player), new SampSharp.GameMode.Vector2(547, 26),
                 TDialog.VerticalAlignment.Top, TDialog.HorizontalAlignment.Left,
@@ -30,11 +31,14 @@ namespace partymode.Widgets
                 new TLabel.ContentStyle(SampSharp.GameMode.Definitions.TextDrawAlignment.Right, 16, true),
                 new Tuple<int, int, int, int>(0, 2, 0, 4), "Freeroam"));
 
-            addChild(new TLabel(
+            var currentscore = Database.instance.get<int>("score", "samp_player", "name", player.Name, 0);
+
+            overallScore = new TLabel(
                 new IPlayerTD(player),
                 TLabel.DefaultTextStyles.DefaultText,
                 new TLabel.ContentStyle(SampSharp.GameMode.Definitions.TextDrawAlignment.Left, 32, true),
-                new Tuple<int, int, int, int>(0, 0, 4, 0), "Punkty: ~w~500"));
+                new Tuple<int, int, int, int>(0, 0, 4, 0), "Punkty: ~w~"+ currentscore.Value.ToString());
+            addChild(overallScore);
 
             armTSlider = new TSlider(
                 new IPlayerTD(player),
@@ -73,6 +77,13 @@ namespace partymode.Widgets
         public void updateScore(int score)
         {
             this.score.setText("Wynik: ~w~" + score.ToString());
+        }
+        public void addToOverallScore(int toAdd)
+        {
+            var score = Database.instance.get<int>("score", "samp_player", "name", player.Name, 0);
+            int newScore = score.Value + toAdd;
+            Database.instance.set(new Dictionary<string, object>() { { "score", newScore } }, "samp_player", "name", player.Name);
+            this.overallScore.setText("Punkty: ~w~" + newScore.ToString());
         }
     }
 }
