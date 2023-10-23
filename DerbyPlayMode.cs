@@ -35,11 +35,6 @@ namespace partymode
         public override bool OverwriteSpawnBehaviour(Player player)
         {
             base.OverwriteSpawnBehaviour(player);
-            if(!begin)
-            {
-                player.ToggleControllable(false);
-                return false;
-            }
             return true;
         }
         public override void OverwriteUpdateBehaviour(Player player)
@@ -59,17 +54,10 @@ namespace partymode
         protected override void OnStart(List<Player> players)
         {
             // Reward over time (points added over time)
-            addAttribute(new OverTimeReward(4000, 10, (Player player) => { return (player.IsAlive && player.IsConnected && begin); }));
-            foreach (var player in players)
-            {
-                player.ToggleControllable(false);
-            }
+            addAttribute(new OverTimeReward(4000, 50, (Player player) => { return (player.IsAlive && player.IsConnected && begin); }));
+            addAttribute(new FreezTillBegin());
         }
         protected override void Begin(List<Player> players) {
-            foreach(var player in players)
-            {
-                player.ToggleControllable(true);
-            }
         }
         
     }

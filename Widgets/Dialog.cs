@@ -11,6 +11,7 @@ namespace partymode.Widgets
         static int MAX_WIDTH = 640;
         static int MAX_HEIGHT = 480;
         TFrame background = null;
+        RectangleF bbox = default(RectangleF);
         private readonly SampSharp.GameMode.Vector2 pos;
         private readonly VerticalAlignment valing;
         private readonly HorizontalAlignment haling;
@@ -37,6 +38,7 @@ namespace partymode.Widgets
         public void addChild(TWidget tdhandler)
         {
             widgets.Add(tdhandler);
+            tdhandler.requestRedraw += (o, e) => redraw();
             redraw();
         }
 
@@ -60,7 +62,7 @@ namespace partymode.Widgets
         }
         private void redraw()
         {
-            RectangleF bbox = new RectangleF(
+            bbox = new RectangleF(
                 pos.X, pos.Y,
                 widgets.Max(obj => obj.size.Width + obj.marginsTBLR.Item3 + obj.marginsTBLR.Item4),
                 widgets.Sum(obj => obj.size.Height + obj.marginsTBLR.Item1 + obj.marginsTBLR.Item2));
@@ -70,7 +72,8 @@ namespace partymode.Widgets
             if (haling == HorizontalAlignment.Center) bbox.X -= bbox.Width / 2;
             else if (haling == HorizontalAlignment.Right) bbox.X -= bbox.Width;
 
-            background.setFrameInfo(bbox);
+            if(!(bbox.Width == background.bbox.Width &&  bbox.Height == background.bbox.Height && bbox.X==background.bbox.X && bbox.Y==background.bbox.Y))
+                background.setFrameInfo(bbox);
 
             float currentY = bbox.Y;
 
@@ -85,7 +88,9 @@ namespace partymode.Widgets
                     tdX = bbox.Right - widget.marginsTBLR.Item4;
                 else if (widget.graphic.getAlignment() == SampSharp.GameMode.Definitions.TextDrawAlignment.Left)
                     tdX = bbox.Left + widget.marginsTBLR.Item3;
-                widget.setPosition(tdX, tdY);
+                //Dont redraw if not needed
+                if(widget.graphic.getPosition().X!=tdX || widget.graphic.getPosition().Y!=tdY)
+                    widget.setPosition(tdX, tdY);
             }
         }
     }

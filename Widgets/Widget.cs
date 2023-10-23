@@ -7,6 +7,7 @@ namespace partymode.Widgets
 {
     public class TWidget
     {
+        public event EventHandler requestRedraw;
         public Tuple<int, int, int, int> marginsTBLR { get; protected set; }
         public bool breaksLine { get; set; }
         public TextDrawAlignment alignment { get { return graphic.getAlignment(); } }
@@ -24,6 +25,7 @@ namespace partymode.Widgets
         }
         public virtual void setPosition(float x, float y)
         {
+            if(graphic.getPosition().X == x && graphic.getPosition().Y == y) { return; }
             graphic.setPosition(new SampSharp.GameMode.Vector2(x, y));
         }
         public virtual void show(Player player)
@@ -35,5 +37,11 @@ namespace partymode.Widgets
             graphic.Hide(player);
         }
         public virtual void redraw() { }
+        protected void raiseRedraw()
+        {
+            var eh = requestRedraw;
+            if (eh != null)
+                eh(this, EventArgs.Empty);
+        }
     }
 }

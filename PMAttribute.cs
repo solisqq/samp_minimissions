@@ -34,6 +34,13 @@ namespace partymode
                 if(exceptions.Contains(player))
                     handleInitialize(player);
         }
+        public void onSpawn(Player player)
+        {
+            if (exceptions.Contains(player)) return;
+            if (invokeOnExceptions)
+                if (exceptions.Contains(player))
+                    handleSpawn(player);
+        }
         public void onBegin(List<Player> players)
         {
             handleBegin(filterPlayers(players));
@@ -53,26 +60,41 @@ namespace partymode
         protected virtual void handleInitialize(Player player) { }
         protected virtual void handleBegin(List<Player> players) { }
         protected virtual void handleFinish(List<Player> players) { }
+        protected virtual void handleSpawn(Player player) { }
     }
     class AutoBegin : PMAttribute
     {
-        int hideRulesMS = 5000;
-        public AutoBegin(int timeMs, int hideRulesMS = 5000, List<Player> exceptions = default(List<Player>), bool invokeOnExceptions = false):
+        int timeSec;
+        public AutoBegin(int timeSec, List<Player> exceptions = default(List<Player>), bool invokeOnExceptions = false):
             base(exceptions, invokeOnExceptions)
         {
+            this.timeSec = timeSec;
         }
         protected override void handleStart(List<Player> players)
         {
-            GameMode.currentPlayMode.RequestBegin(GameMode.GetPlayers(), 0);
+            GameMode.currentPlayMode.RequestBegin(players, timeSec);
         }
-        protected override void handleInitialize(Player player) {
-            var pm = GameMode.currentPlayMode;
-            player.addTask(p => {
-                if(pm.Equals(GameMode.currentPlayMode))
-                {
-                    GameMode.currentPlayMode.HideRules(p);
-                }
-            }, hideRulesMS);
+    }
+    class FreezTillBegin : PMAttribute
+    {
+        protected override void handleSpawn(Player player)
+        {
+            if (!GameMode.currentPlayMode.begin)
+                player.ToggleControllable(false);
+        }
+        protected override void handleStart(List<Player> players)
+        {
+            foreach (Player p in players)
+            {
+                p.ToggleControllable(false);
+            }
+        }
+        protected override void handleBegin(List<Player> players)
+        {
+            foreach (Player p in players)
+            {
+                p.ToggleControllable(true);
+            }
         }
     }
     class OverTimeReward : PMAttribute

@@ -42,17 +42,17 @@ namespace partymode
             SetGameModeText("Party mode by SolisQQ");
             EnableStuntBonusForAll(false);
             DisableInteriorEnterExits();
-            setCurrentModeByName("freeroam");
+            setCurrentModeByName("freeroam", false);
             serverInfoMSG = new TCPMsg("server_info", (JsonElement element) =>
             {
                 return "players_online: \"" + GetPlayers().Count.ToString() + "\", current_mode: \"" + currentPlayMode.cmd + "\"";
             });
         }
 
-        public bool setCurrentModeByName(String name)
+        public bool setCurrentModeByName(String name, bool updateOverallScore)
         {
             if(!playModes.ContainsKey(name)) return false;
-            if (currentPlayMode != null) currentPlayMode.Finish(GetPlayers());
+            if (currentPlayMode != null) currentPlayMode.Finish(GetPlayers(), updateOverallScore);
             currentPlayMode = playModes[name];
             ResetGameWorldToDefault();
             currentPlayMode.Start(GetPlayers());

@@ -7,7 +7,7 @@ namespace partymode.Widgets
 {
     public class TFrame : TWidget
     {
-        protected RectangleF bbox;
+        public RectangleF bbox { get; protected set; }
         public TFrame(TextDrawInterface td,
             SampSharp.GameMode.SAMP.Color background,
             Size size, Tuple<int, int, int, int> marginTBLR,
@@ -25,11 +25,13 @@ namespace partymode.Widgets
         }
         public void setFrameInfo(RectangleF bbox)
         {
+            if (bbox.X == this.bbox.X && bbox.Y == this.bbox.Y && bbox.Width == this.bbox.Width && bbox.Height == this.bbox.Height) return;
             this.bbox = bbox;
             redraw();
         }
         public override void setPosition(float x, float y)
         {
+            if (this.bbox.X==x && this.bbox.Y==y) return;
             bbox = new RectangleF(x, y, bbox.Width, bbox.Height);
             redraw();
         }

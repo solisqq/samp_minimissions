@@ -68,8 +68,7 @@ namespace partymode
 
         protected override void OnStart(List<Player> players)
         {
-            
-            
+            addAttribute(new AutoBegin(5));
         }
     }
 }
