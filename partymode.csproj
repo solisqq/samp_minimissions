@@ -45,6 +45,7 @@
       <Compile Include="Program.cs" />
       <Compile Include="Race.cs" />
       <Compile Include="Team.cs" />
+      <Compile Include="Widgets\EndGameDialog.cs" />
       <Compile Include="Widgets\Frame.cs" />
       <Compile Include="Widgets\Label.cs" />
       <Compile Include="Widgets\PlayerDialog.cs" />

@@ -175,11 +175,6 @@ namespace partymode
         public override bool OverwriteSpawnBehaviour(Player player)
         {
             base.OverwriteSpawnBehaviour(player);
-            if(!begin)
-            {
-                player.ToggleControllable(false);
-                return false;
-            }
             return true;
         }
         public override void OverwriteUpdateBehaviour(Player player)

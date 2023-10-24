@@ -42,7 +42,7 @@ namespace partymode.Widgets
             redraw();
         }
 
-        public void show(Player player)
+        public virtual void show(Player player)
         {
             background.show(player);
             foreach (var widget in widgets)
@@ -51,7 +51,7 @@ namespace partymode.Widgets
             }
             if (clickable) { player.SelectTextDraw(new SampSharp.GameMode.SAMP.Color(64, 255, 136, 250)); }
         }
-        public void hide(Player player)
+        public virtual void hide(Player player)
         {
             background.hide(player);
             foreach (var widget in widgets)

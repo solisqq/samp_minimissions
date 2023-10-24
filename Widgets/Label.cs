@@ -2,6 +2,7 @@
 using System;
 using System.Drawing;
 using SampSharp.GameMode;
+using System.Linq;
 
 namespace partymode.Widgets
 {
@@ -78,12 +79,24 @@ namespace partymode.Widgets
             graphic.setFont(TextDrawFont.Normal);
             graphic.setLetterSize(textStyle.size);
         }
-        public void setText(string text)
+        public void setText(string text, bool automateBreakLines = true)
         {
-            var textInfo = utils.splitEveryNOnSpaces(text, "~n~", contentStyle.charsPerLine);
-            int linesCount = textInfo.Item2;
-            int textMaxLength = textInfo.Item3;
-            this.text = textInfo.Item1;
+            int linesCount = 0;
+            int textMaxLength = 0;
+            if (automateBreakLines)
+            {
+                var textInfo = utils.splitEveryNOnSpaces(text, "~n~", contentStyle.charsPerLine);
+                this.text = textInfo.Item1;
+                linesCount = textInfo.Item2;
+                textMaxLength = textInfo.Item3;
+            } else
+            {
+                this.text = text;
+                var splitted = text.Split("~n~");
+                linesCount = splitted.Count();
+                textMaxLength = splitted.Max(x => x.Length);
+            }
+            
             int width = (int)(textStyle.size.X * 17.3 * textMaxLength) + marginsTBLR.Item3 + marginsTBLR.Item4;
             int height = (int)(textStyle.size.Y * 9 * linesCount) + contentStyle.topMargin + contentStyle.bottomMargin + marginsTBLR.Item1 + marginsTBLR.Item2;
             if (width == size.Width && height == size.Height) return;

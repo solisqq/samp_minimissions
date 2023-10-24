@@ -38,7 +38,7 @@ namespace partymode
             {
                 base.OverwriteSpawnBehaviour(player);
                 player.GiveWeapon(SampSharp.GameMode.Definitions.Weapon.Parachute, 1);
-                if (!begin)
+                if (currentState!=PlayModeState.BEGAN)
                 {
                     player.ToggleControllable(false);
                     return false;
