@@ -20,8 +20,15 @@ namespace partymode
     {
         public readonly String cmd;
         public TDialog rulesDialog;
+        public EndGameDialog endGameDialog;
         TLabel nameLabel, rulesLabel;
-        public bool begin { get; protected set; } = false;
+        public enum PlayModeState
+        {
+            STARTED=0,
+            BEGAN=1,
+            FINISHED=2
+        }
+        public PlayModeState currentState { get; protected set; } = PlayModeState.STARTED;
         protected CustomSpectator spectator;
         protected List<SampSharp.GameMode.Vector3> SpawnPositions;
         protected List<GlobalObject> staticObjects = new List<GlobalObject>();
@@ -58,6 +65,8 @@ namespace partymode
                 TDialog.VerticalAlignment.Center, 
                 TDialog.HorizontalAlignment.Center, 
                 TLabel.DefaultColors.Background);
+
+            endGameDialog = new EndGameDialog();
 
             nameLabel = new TLabel(
                 new IGlobalTD(),
@@ -106,7 +115,7 @@ namespace partymode
             BasePlayer.GameTextForAll("~g~Start", 3000, 6);
             beginCountDown.AutoReset = false;
             beginCountDown.Stop();
-            begin = true;
+            currentState = PlayModeState.BEGAN;
             foreach (var player in GameMode.GetPlayers())
                 rulesDialog.hide(player);
 
@@ -188,6 +197,7 @@ namespace partymode
                 .ToArray();
             return new String(filtered);
         }
+        public string getFullName() { return nameLabel.text; }
         private void LoadFromDB()
         {
             Console.WriteLine(DateTime.Now.ToString("dd.MM hh:mm:ss") + ": Loading " + cmd + " playmode.");
@@ -298,6 +308,7 @@ namespace partymode
         }
         public void Start(List<Player> players)
         {
+            currentState = PlayModeState.STARTED;
             LoadFromDB();
             InitializeStatics();
             foreach (var player in players)
@@ -309,6 +320,7 @@ namespace partymode
             spectator.Enable();
 
             OnStart(players);
+            endGameDialog.hideToAll();
             foreach (var att in pmAttributes) att.onStart(GameMode.GetPlayers());
         }
         
@@ -319,7 +331,7 @@ namespace partymode
             player.SetSpawnInfo(player.Team, player.Skin, player.Position, player.Rotation.Z);
             
             foreach (var att in pmAttributes) att.onInitialize(player);
-            if (!begin)
+            if (currentState==PlayModeState.STARTED)
             {
                 rulesDialog.hide(player);
                 rulesDialog.show(player);
@@ -328,8 +340,18 @@ namespace partymode
             if (!player.initializedAfterConnection) {
                 player.initializedAfterConnection = true;
                 player.ClearPlayer();
-                OverwriteJoinBehaviour(begin, player);
+                OnJoin(player);
+                OverwriteJoinBehaviour(currentState==PlayModeState.BEGAN, player);
+                foreach(var att in pmAttributes)
+                {
+                    att.onJoin(player);
+                }
             }
+        }
+        public void OnJoin(Player player)
+        {
+            GameMode.currentPlayMode.rulesDialog.show(player);
+            player.addTask((p) => GameMode.currentPlayMode.rulesDialog.hide(player), 5000);
         }
         
         public void RequestBegin(List<Player> players, int time)
@@ -345,13 +367,15 @@ namespace partymode
             StartCountDown(time);
         }
         protected virtual void Begin(List<Player> players) { }
-        public void Finish(List<Player> players, bool updateScore=true)
+        public void Finish(List<Player> players)
         {
             OnEnd(players);
+            endGameDialog.hideToAll();
             vAbilitiesSpawner.StopSpawning();
             pAbilitiesSpawner.StopSpawning();
-            begin = false;
+            currentState = PlayModeState.FINISHED;
             spectator.Disable();
+
             foreach (var veh in staticVehicles)
             {
                 veh.Dispose();
@@ -360,16 +384,15 @@ namespace partymode
             {
                 obj.Dispose();
             }
+            foreach (var att in pmAttributes)
+                att.onFinish(GameMode.GetPlayers());
             staticVehicles.Clear();
             staticObjects.Clear();
             foreach (var player in players)
             {
                 rulesDialog.hide(player);
-                if (updateScore) player.infoDialog.addToOverallScore(player.Score);
             }
             Abilities.CleanUp();
-            foreach(var att in pmAttributes)
-                att.onFinish(GameMode.GetPlayers());
             pmAttributes.Clear();
         }
         public abstract void InitializeStatics();
@@ -380,7 +403,23 @@ namespace partymode
         public virtual bool OverwriteSpawnBehaviour(Player player) {
             foreach (var att in pmAttributes) att.onSpawn(player);
             InitializePlayer(player);
+            if(currentState== PlayModeState.FINISHED)
+                SetupPlayerAfterPlayModeStop(player);
+            
             return false; 
+        }
+        private void SetupPlayerAfterPlayModeStop(Player player)
+        {
+            SetupPlayerAfterEliminated(player);
+            rulesDialog.hide(player);
+            endGameDialog.show(player);
+        }
+        private void SetupPlayerAfterEliminated(Player player)
+        {
+            player.ToggleControllable(false);
+            var spawnPos = SpawnPositions[newRandomSpawnPosition];
+            player.CameraPosition = new SampSharp.GameMode.Vector3(spawnPos.X, spawnPos.Y, spawnPos.Z+50);
+            player.SetCameraLookAt(spawnPos);
         }
         public virtual void OverwriteKillBehaviour(Player killed, BasePlayer killer) { }
         public virtual void OverwriteUpdateBehaviour(Player player) { }
@@ -393,17 +432,31 @@ namespace partymode
         }
         public virtual void StopGamePlay(String reason)
         {
-            begin = false;
-            if(spectator!=null)
+            currentState = PlayModeState.FINISHED;
+            var players = GameMode.GetPlayers();
+            endGameDialog.showToAll();
+            /*if (spectator!=null)
             {
                 spectator.spectateMapOnly = true;
-                foreach(var player in GameMode.GetPlayers())
+                foreach(var player in players)
                 {
-                    spectator.EnableSpectatingForPlayer(player);
+                    player.ToggleControllable(false);
+                    *//*spectator.EnableSpectatingForPlayer(player);*//*
                     //qinfoTd.Show();
                 }
+            }*/
+            OnGamePlayFinish();
+            foreach(var att in pmAttributes)
+            {
+                att.OnGamePlayFinish(players);
             }
-        }
+            foreach (var player in players)
+            {
+                player.infoDialog.addToOverallScore(player.Score);
+                SetupPlayerAfterPlayModeStop(player);
+            }
+        } 
+        protected virtual void OnGamePlayFinish(){}
         public virtual void PlayerScoreChanged(Player player, double newScore)
         {
             player.infoDialog.updateScore((int)newScore);

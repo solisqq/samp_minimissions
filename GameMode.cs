@@ -52,7 +52,7 @@ namespace partymode
         public bool setCurrentModeByName(String name, bool updateOverallScore)
         {
             if(!playModes.ContainsKey(name)) return false;
-            if (currentPlayMode != null) currentPlayMode.Finish(GetPlayers(), updateOverallScore);
+            if (currentPlayMode != null) currentPlayMode.Finish(GetPlayers());
             currentPlayMode = playModes[name];
             ResetGameWorldToDefault();
             currentPlayMode.Start(GetPlayers());

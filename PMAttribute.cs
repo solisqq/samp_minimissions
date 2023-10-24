@@ -34,6 +34,13 @@ namespace partymode
                 if(exceptions.Contains(player))
                     handleInitialize(player);
         }
+        public void onJoin(Player player)
+        {
+            if (exceptions.Contains(player)) return;
+            if (invokeOnExceptions)
+                if (exceptions.Contains(player))
+                    handleJoin(player);
+        }
         public void onSpawn(Player player)
         {
             if (exceptions.Contains(player)) return;
@@ -44,6 +51,10 @@ namespace partymode
         public void onBegin(List<Player> players)
         {
             handleBegin(filterPlayers(players));
+        }
+        public void OnGamePlayFinish(List<Player> players)
+        {
+            handleGamePlayFinish(filterPlayers(players));
         }
         protected List<Player> filterPlayers(List<Player> players)
         {
@@ -61,6 +72,8 @@ namespace partymode
         protected virtual void handleBegin(List<Player> players) { }
         protected virtual void handleFinish(List<Player> players) { }
         protected virtual void handleSpawn(Player player) { }
+        protected virtual void handleJoin(Player player) { }
+        protected virtual void handleGamePlayFinish(List<Player> players) { }
     }
     class AutoBegin : PMAttribute
     {
@@ -79,7 +92,7 @@ namespace partymode
     {
         protected override void handleSpawn(Player player)
         {
-            if (!GameMode.currentPlayMode.begin)
+            if (GameMode.currentPlayMode.currentState != PlayMode.PlayModeState.BEGAN)
                 player.ToggleControllable(false);
         }
         protected override void handleStart(List<Player> players)
@@ -130,6 +143,10 @@ namespace partymode
             rewardTimer.Start();
         }
         protected override void handleFinish(List<Player> players)
+        {
+            rewardTimer.Stop();
+        }
+        protected override void handleGamePlayFinish(List<Player> players)
         {
             rewardTimer.Stop();
         }

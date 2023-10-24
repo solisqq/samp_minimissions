@@ -54,7 +54,7 @@ namespace partymode
         protected override void OnStart(List<Player> players)
         {
             // Reward over time (points added over time)
-            addAttribute(new OverTimeReward(4000, 50, (Player player) => { return (player.IsAlive && player.IsConnected && begin); }));
+            addAttribute(new OverTimeReward(3000, 300, (Player player) => { return (player.IsAlive && player.IsConnected && currentState == PlayModeState.BEGAN); }));
             addAttribute(new FreezTillBegin());
         }
         protected override void Begin(List<Player> players) {
