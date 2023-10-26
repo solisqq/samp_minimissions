@@ -29,24 +29,31 @@ namespace partymode
         }
         public void onInitialize(Player player)
         {
-            if (exceptions.Contains(player)) return;
-            if (invokeOnExceptions)
-                if(exceptions.Contains(player))
-                    handleInitialize(player);
+            if (invokeOnExceptions && exceptions.Contains(player))
+                handleInitialize(player);
+            else if (!invokeOnExceptions && !exceptions.Contains(player))
+                handleInitialize(player);
         }
         public void onJoin(Player player)
         {
-            if (exceptions.Contains(player)) return;
-            if (invokeOnExceptions)
-                if (exceptions.Contains(player))
-                    handleJoin(player);
+            if (invokeOnExceptions && exceptions.Contains(player))
+                handleJoin(player);
+            else if (!invokeOnExceptions && !exceptions.Contains(player))
+                handleJoin(player);
         }
         public void onSpawn(Player player)
         {
-            if (exceptions.Contains(player)) return;
-            if (invokeOnExceptions)
-                if (exceptions.Contains(player))
-                    handleSpawn(player);
+            if (invokeOnExceptions && exceptions.Contains(player))
+                handleSpawn(player);
+            else if (!invokeOnExceptions && !exceptions.Contains(player))
+                handleSpawn(player);
+        }
+        public void onEnterRaceCheckpoint(Player player)
+        {
+            if (invokeOnExceptions && exceptions.Contains(player))
+                handleEnterRaceCheckpoint(player);
+            else if (!invokeOnExceptions && !exceptions.Contains(player))
+                handleEnterRaceCheckpoint(player);
         }
         public void onBegin(List<Player> players)
         {
@@ -73,6 +80,7 @@ namespace partymode
         protected virtual void handleFinish(List<Player> players) { }
         protected virtual void handleSpawn(Player player) { }
         protected virtual void handleJoin(Player player) { }
+        protected virtual void handleEnterRaceCheckpoint(Player player) { }
         protected virtual void handleGamePlayFinish(List<Player> players) { }
     }
     class AutoBegin : PMAttribute

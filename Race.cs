@@ -4,48 +4,47 @@ using System.Collections.Generic;
 
 namespace partymode
 {
-    public class Race
+    public class Race : PMAttribute
     {
         public event EventHandler Finished;
         public event EventHandler AllFinished;
 
         List<Vector3> checkpoints;
         List<Player> playersFinished = new List<Player>();
-        Dictionary<Player, int> currentCheckpointId = new Dictionary<Player, int>();
         
-        public Race(List<Vector3> checkpointsPositions)
+        public Race(List<Vector3> checkpointsPositions):
+            base()
         {
             checkpoints = checkpointsPositions;
             if(checkpointsPositions.Count<2)
                 throw new Exception("Minimum three checkpoints positions must be passed to instatiate Race class.");
         }
-        private void OnEnterCheckpoint(object sender, EventArgs args)
+        protected override void handleEnterRaceCheckpoint(Player player)
         {
-            var player = (Player)sender;
-            var checkpointId = currentCheckpointId[player];
-            if (checkpointId >= checkpoints.Count)
+            if (player.raceCheckpointId >= checkpoints.Count-1)
             {
-                
                 OnRaceFinish(player);
                 player.DisableRaceCheckpoint();
                 return;
             }
-            if(checkpointId+2==checkpoints.Count)
+            player.raceCheckpointId++;
+            if (player.raceCheckpointId >= checkpoints.Count-1)
             {
                 player.SetRaceCheckpoint(SampSharp.GameMode.Definitions.CheckpointType.Finish,
-                    checkpoints[0], new Vector3(0, 0, 0), 15.0f);
+                    checkpoints[Math.Min(checkpoints.Count, player.raceCheckpointId)], new Vector3(0, 0, 0), 15.0f);
             } else
             {
                 player.SetRaceCheckpoint(SampSharp.GameMode.Definitions.CheckpointType.Normal,
-                    checkpoints[0], new Vector3(0, 0, 0), 15.0f);
+                    checkpoints[Math.Min(checkpoints.Count, player.raceCheckpointId)], checkpoints[Math.Min(checkpoints.Count, player.raceCheckpointId+1)], 15.0f);
             }
-            currentCheckpointId[player] = checkpointId + 1;
+            Console.WriteLine(player.raceCheckpointId.ToString() +" "+ checkpoints[player.raceCheckpointId].ToString());
         }
         public virtual void OnRaceFinish(Player player)
         {
             //Event handlers not wokring
             /*EventHandler handler = Finished;
             handler(player, EventArgs.Empty);*/
+            player.raceCheckpointId = 0;
             playersFinished.Add(player);
             player.SetScore(1000.0 / 1);
             foreach(var pl in GameMode.GetPlayers())
@@ -54,18 +53,20 @@ namespace partymode
             /*EventHandler allFinishedHandler = AllFinished;
             allFinishedHandler(playersFinished, EventArgs.Empty);*/
         }
-        public virtual void OnRaceBegin(Player player)
+        private void startForPlayer(Player player)
         {
+            player.raceCheckpointId = 0;
             player.SetRaceCheckpoint(SampSharp.GameMode.Definitions.CheckpointType.Normal,
                 checkpoints[0], new Vector3(0, 0, 0), 15.0f);
-            currentCheckpointId.Add(player, 0);
-            player.EnterRaceCheckpoint += OnEnterCheckpoint;
         }
-        public virtual void Begin(List<Player> players)
+        protected override void handleSpawn(Player player)
         {
-            foreach(var player in players) {
-                OnRaceBegin(player);
-            }
+            startForPlayer(player);
+        }
+        protected override void handleBegin(List<Player> players)
+        {
+            foreach (var player in players)
+                startForPlayer(player);
         }
     }
 }

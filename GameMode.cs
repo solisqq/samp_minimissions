@@ -18,7 +18,8 @@ namespace partymode
 {
     public class GameMode : BaseMode
     {
-        public static string version = "0.2310.10";
+        public static int maxPointsInPlayMode = 2000;
+        public static string version = "0.2310.26";
         public static Dictionary<string, PlayMode> playModes = new Dictionary<string, PlayMode>();
         public static PlayMode currentPlayMode;
         public static GameMode gm;
@@ -42,7 +43,7 @@ namespace partymode
             SetGameModeText("Party mode by SolisQQ");
             EnableStuntBonusForAll(false);
             DisableInteriorEnterExits();
-            setCurrentModeByName("freeroam", false);
+            setCurrentModeByName("lsrace", false);
             serverInfoMSG = new TCPMsg("server_info", (JsonElement element) =>
             {
                 return "players_online: \"" + GetPlayers().Count.ToString() + "\", current_mode: \"" + currentPlayMode.cmd + "\"";

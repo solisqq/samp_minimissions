@@ -75,6 +75,8 @@ namespace partymode
         public CountDown countDown;
         List<System.Timers.Timer> timers = new List<System.Timers.Timer>();
 
+        public int raceCheckpointId=0;
+
         public Player()
         {
             countDown = new CountDown(this);
@@ -136,6 +138,12 @@ namespace partymode
             
             GameMode.currentPlayMode.OverwriteSpawnBehaviour(this);
         }
+
+        public override void OnEnterRaceCheckpoint(EventArgs e)
+        {
+            base.OnEnterCheckpoint(e);
+            GameMode.currentPlayMode.OverwriteEnterRaceCheckpoint(this);
+        }
         public override void OnDeath(DeathEventArgs e)
         {
             base.OnDeath(e);
@@ -161,6 +169,7 @@ namespace partymode
             foreach (int i in Enum.GetValues(typeof(WeaponSkill)))
                 SetSkillLevel((WeaponSkill)i, 200);
             PutCameraBehindPlayer();
+            raceCheckpointId = 0;
         }
 
         public void AddScore(double scoreToAdd)

@@ -109,6 +109,20 @@ namespace partymode
             {
                 Console.WriteLine(sender.Position);
             }
+            [Command("cpos")]
+            private static void DebugCarPosition(BasePlayer sender)
+            {
+                if(sender.InAnyVehicle)
+                {
+                    Console.WriteLine(
+                        "model," +
+                        sender.Vehicle.Position.X.ToString()+","+
+                        sender.Vehicle.Position.Y.ToString()+","+
+                        sender.Vehicle.Position.Z.ToString()+","+
+                        "0,0");
+                }
+                
+            }
         }
     }
 }
