@@ -328,6 +328,7 @@ namespace partymode
         {
             player.Position = SpawnPositions[newRandomSpawnPosition];
             player.Rotation = startRotation;
+            player.raceCheckpointId = 0;
             player.SetSpawnInfo(player.Team, player.Skin, player.Position, player.Rotation.Z);
             
             foreach (var att in pmAttributes) att.onInitialize(player);
@@ -407,6 +408,10 @@ namespace partymode
                 SetupPlayerAfterPlayModeStop(player);
             
             return false; 
+        }
+        public virtual void OverwriteEnterRaceCheckpoint(Player player) {
+            foreach(var att in pmAttributes)
+                att.onEnterRaceCheckpoint(player);
         }
         private void SetupPlayerAfterPlayModeStop(Player player)
         {
