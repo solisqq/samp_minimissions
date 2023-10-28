@@ -134,7 +134,6 @@ namespace partymode
         {
             var pl = (Player)sender;
             pl.SetScore(seeker.Score);
-            TurnOnSpectate(pl);
         }
         public override void PlayerScoreChanged(Player player, double newScore)
         {
@@ -142,16 +141,7 @@ namespace partymode
         
         private void HandleStopGamePlay()
         {
-            List<Player> SortedList = GameMode.GetPlayers().OrderBy(item => -item.Score).ToList();
-            string reason = "";
-            int i = 0;
-            foreach (var pl in SortedList)
-            {
-                i++;
-                reason += i.ToString() + ". " + pl.Name + "~n~";
-                TurnOnSpectate(pl);
-            }
-            StopGamePlay(reason);
+            StopGamePlay();
         }
         public override void InitializeStatics()
         {
@@ -296,6 +286,12 @@ namespace partymode
             CreateObject(11326, -1115.1, -1275.1, 131.5, 0, 0, 0);
             CreateObject(11480, -1081, -1274.3, 130.39999, 0, 0, 0);
             CreateObject(18283, -1116.8, -1297.2, 128.2, 0, 0, 0);*/
+        }
+        public override bool isAbleToStart()
+        {
+            if(GameMode.GetPlayers().Count >1)           
+                return true;
+            return false;
         }
     }
 }

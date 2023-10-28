@@ -57,8 +57,12 @@ namespace partymode
             addAttribute(new OverTimeReward(3000, 300, (Player player) => { return (player.IsAlive && player.IsConnected && currentState == PlayModeState.BEGAN); }));
             addAttribute(new FreezTillBegin());
         }
-        protected override void Begin(List<Player> players) {
+        protected override void Begin(List<Player> players) {}
+        public override bool isAbleToStart()
+        {
+            if (GameMode.GetPlayers().Count > 0)
+                return true;
+            return false;
         }
-        
     }
 }
