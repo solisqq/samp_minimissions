@@ -21,10 +21,10 @@ namespace partymode
         }
         protected override void handleEnterRaceCheckpoint(Player player)
         {
+            player.AddScore(10);
             if (player.raceCheckpointId >= checkpoints.Count-1)
             {
                 OnRaceFinish(player);
-                player.DisableRaceCheckpoint();
                 return;
             }
             player.raceCheckpointId++;
@@ -41,15 +41,22 @@ namespace partymode
         }
         public virtual void OnRaceFinish(Player player)
         {
+            /*EventHandler handler = Finished;*/
+            player.Score = GameMode.getPointsFromPlace(playersFinished.Count);
+            Finished.Invoke(player, EventArgs.Empty);
+            Player.SendClientMessageToAll(
+                "Player "+player.Name+" finished race as "+ (playersFinished.Count+1).ToString()+".");
+            /*handler.Invoke();*/
+            player.DisableRaceCheckpoint();
             //Event handlers not wokring
             /*EventHandler handler = Finished;
             handler(player, EventArgs.Empty);*/
-            player.raceCheckpointId = 0;
+            /*player.raceCheckpointId = 0;
             playersFinished.Add(player);
             player.SetScore(1000.0 / 1);
             foreach(var pl in GameMode.GetPlayers())
                 if (!playersFinished.Contains(pl)) 
-                    return;
+                    return;*/
             /*EventHandler allFinishedHandler = AllFinished;
             allFinishedHandler(playersFinished, EventArgs.Empty);*/
         }

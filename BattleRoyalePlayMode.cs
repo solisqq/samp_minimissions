@@ -67,7 +67,12 @@ namespace partymode
                     player.ToggleControllable(true);
                 }
             }
-
+            public override bool isAbleToStart()
+            {
+                if (GameMode.GetPlayers().Count > 1)
+                    return true;
+                return false;
+            }
         }
     }
 

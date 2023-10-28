@@ -70,5 +70,6 @@ namespace partymode
         {
             addAttribute(new AutoBegin(5));
         }
+        public override bool isAbleToStart(){ return true; }
     }
 }

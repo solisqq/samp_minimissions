@@ -51,6 +51,7 @@
       <Compile Include="Widgets\PlayerDialog.cs" />
       <Compile Include="Widgets\Slider.cs" />
       <Compile Include="Widgets\TextDrawInterface.cs" />
+      <Compile Include="Widgets\VoteDialog.cs" />
       <Compile Include="Widgets\Widget.cs" />
     </ItemGroup>
 

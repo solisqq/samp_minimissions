@@ -67,7 +67,6 @@ namespace partymode
         public bool vabilityWarmedOff = true;
         public bool pabilityWarmedOff = true;
         public bool initializedAfterConnection = false;
-        public CustomSpectator spectator;
         public Dictionary<string, TDialog> dialogs = new Dictionary<string, TDialog>();
         public PlayerDialog infoDialog;
         private double internalScore=0;
@@ -179,12 +178,12 @@ namespace partymode
             Score = (int)internalScore;
             GameMode.currentPlayMode.PlayerScoreChanged(this, internalScore);
         }
-        public void SetScore(double newScore)
+        public void SetScore(double newScore, bool dontTriggerChange = false)
         {
             internalScore = newScore;
             Money = (int)internalScore;
             Score = (int)newScore;
-            GameMode.currentPlayMode.PlayerScoreChanged(this, internalScore);
+            if(!dontTriggerChange) GameMode.currentPlayMode.PlayerScoreChanged(this, internalScore);
         }
         public void ResetScore()
         {

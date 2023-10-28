@@ -20,7 +20,7 @@ namespace partymode
     {
         public readonly String cmd;
         public TDialog rulesDialog;
-        public EndGameDialog endGameDialog;
+        
         TLabel nameLabel, rulesLabel;
         public enum PlayModeState
         {
@@ -29,7 +29,6 @@ namespace partymode
             FINISHED=2
         }
         public PlayModeState currentState { get; protected set; } = PlayModeState.STARTED;
-        protected CustomSpectator spectator;
         protected List<SampSharp.GameMode.Vector3> SpawnPositions;
         protected List<GlobalObject> staticObjects = new List<GlobalObject>();
         protected List<BaseVehicle> staticVehicles = new List<BaseVehicle>();
@@ -50,6 +49,7 @@ namespace partymode
         protected int minimumPlayersCount = 0;
         private double _scoreLimit=-1;
         public double scoreLimit { get { return _scoreLimit; } set { _scoreLimit = value; } }
+        public EventHandler PlayModeFinished;
 
         public PlayMode(String command)
         {
@@ -65,8 +65,6 @@ namespace partymode
                 TDialog.VerticalAlignment.Center, 
                 TDialog.HorizontalAlignment.Center, 
                 TLabel.DefaultColors.Background);
-
-            endGameDialog = new EndGameDialog();
 
             nameLabel = new TLabel(
                 new IGlobalTD(),
@@ -211,10 +209,10 @@ namespace partymode
             nameLabel.setText(playModeInfo["fullname"].ToString());
             rulesLabel.setText(removeAccents(playModeInfo["rules"].ToString()).Replace('ł','l'));
             var spectatorParams = playModeInfo["spectator"].ToString().Split(',');
-            this.spectator = new CustomSpectator(
+            /*this.spectator = new CustomSpectator(
                 new SampSharp.GameMode.Vector3(Convert.ToDouble(spectatorParams[0], CultureInfo.InvariantCulture), Convert.ToDouble(spectatorParams[1], CultureInfo.InvariantCulture), Convert.ToDouble(spectatorParams[2], CultureInfo.InvariantCulture)),
                 Convert.ToInt32(spectatorParams[3], CultureInfo.InvariantCulture), Convert.ToInt32(spectatorParams[4], CultureInfo.InvariantCulture));
-            double spawn_rotx = 0.0;
+            */double spawn_rotx = 0.0;
             double spawn_roty = 0.0;
             var randomizeSpawn = 0;
             try { spawn_rotx = Convert.ToDouble(playModeInfo["spawn_rotx"].ToString()); } catch { }
@@ -317,10 +315,9 @@ namespace partymode
                 player.dialogs = new Dictionary<string, TDialog>();
                 InitializePlayer(player);
             }
-            spectator.Enable();
 
             OnStart(players);
-            endGameDialog.hideToAll();
+            pmAttributes.Add(new PlayerFinishedBehaviour(this));
             foreach (var att in pmAttributes) att.onStart(GameMode.GetPlayers());
         }
         
@@ -336,7 +333,6 @@ namespace partymode
             {
                 rulesDialog.hide(player);
                 rulesDialog.show(player);
-                /*player.addTask((p)=>rulesDialog.hide(), 5000);*/
             }
             if (!player.initializedAfterConnection) {
                 player.initializedAfterConnection = true;
@@ -371,11 +367,10 @@ namespace partymode
         public void Finish(List<Player> players)
         {
             OnEnd(players);
-            endGameDialog.hideToAll();
             vAbilitiesSpawner.StopSpawning();
             pAbilitiesSpawner.StopSpawning();
             currentState = PlayModeState.FINISHED;
-            spectator.Disable();
+            /*spectator.Disable();*/
 
             foreach (var veh in staticVehicles)
             {
@@ -404,22 +399,18 @@ namespace partymode
         public virtual bool OverwriteSpawnBehaviour(Player player) {
             foreach (var att in pmAttributes) att.onSpawn(player);
             InitializePlayer(player);
-            if(currentState== PlayModeState.FINISHED)
-                SetupPlayerAfterPlayModeStop(player);
-            
             return false; 
         }
         public virtual void OverwriteEnterRaceCheckpoint(Player player) {
             foreach(var att in pmAttributes)
                 att.onEnterRaceCheckpoint(player);
         }
-        private void SetupPlayerAfterPlayModeStop(Player player)
+        public void SetupPlayerAfterPlayModeStop(Player player)
         {
             SetupPlayerAfterEliminated(player);
             rulesDialog.hide(player);
-            endGameDialog.show(player);
         }
-        private void SetupPlayerAfterEliminated(Player player)
+        public void SetupPlayerAfterEliminated(Player player)
         {
             player.ToggleControllable(false);
             var spawnPos = SpawnPositions[newRandomSpawnPosition];
@@ -428,56 +419,33 @@ namespace partymode
         }
         public virtual void OverwriteKillBehaviour(Player killed, BasePlayer killer) { }
         public virtual void OverwriteUpdateBehaviour(Player player) { }
-        public virtual void TurnOnSpectate(Player player)
-        {
-            if(spectator!=null)
-            {
-                spectator.EnableSpectatingForPlayer(player);
-            }
-        }
-        public virtual void StopGamePlay(String reason)
+        public virtual void StopGamePlay()
         {
             currentState = PlayModeState.FINISHED;
             var players = GameMode.GetPlayers();
-            endGameDialog.showToAll();
-            /*if (spectator!=null)
-            {
-                spectator.spectateMapOnly = true;
-                foreach(var player in players)
-                {
-                    player.ToggleControllable(false);
-                    *//*spectator.EnableSpectatingForPlayer(player);*//*
-                    //qinfoTd.Show();
-                }
-            }*/
             OnGamePlayFinish();
             foreach(var att in pmAttributes)
             {
                 att.OnGamePlayFinish(players);
             }
-            foreach (var player in players)
-            {
-                player.infoDialog.addToOverallScore(player.Score);
-                SetupPlayerAfterPlayModeStop(player);
-            }
+            PlayModeFinished.Invoke(this, EventArgs.Empty);
         } 
         protected virtual void OnGamePlayFinish(){}
         public virtual void PlayerScoreChanged(Player player, double newScore)
         {
             player.infoDialog.updateScore((int)newScore);
-            if (scoreLimit > 0 && newScore >= scoreLimit)
+            foreach(var att in pmAttributes)
             {
-                List<Player> SortedList = GameMode.GetPlayers().OrderBy(item => -item.Score).ToList();
-                string reason="";
-                int i = 0;
-                foreach(var pl in SortedList)
-                {
-                    i++;
-                    reason += i.ToString()+". " + pl.Name + "~n~";
-                }
-                StopGamePlay(reason);
+                att.onScoreChanged(player);
             }
         }
+        protected virtual void onPlayerFinished(Player player) {
+            foreach(var att in pmAttributes)
+            {
+                att.onPlayerFinished(player);
+            }
+        }
+        public abstract bool isAbleToStart();
     }
 
     public class Spectator

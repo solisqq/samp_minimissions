@@ -6,7 +6,7 @@ using System.Timers;
 
 namespace partymode
 {
-    public class CustomSpectator
+    /*public class CustomSpectator
     {
         
         protected Vector3 mainSpectatePosition;
@@ -141,5 +141,5 @@ namespace partymode
             var r = new Random();
             return availablePlayers[r.Next(availablePlayers.Count)];
         }
-    }
+    }*/
 }

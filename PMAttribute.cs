@@ -1,4 +1,6 @@
-﻿using System;
+﻿using partymode.Widgets;
+using SampSharp.GameMode.World;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -34,12 +36,26 @@ namespace partymode
             else if (!invokeOnExceptions && !exceptions.Contains(player))
                 handleInitialize(player);
         }
+        public void onScoreChanged(Player player)
+        {
+            if (invokeOnExceptions && exceptions.Contains(player))
+                handleScoreChange(player);
+            else if (!invokeOnExceptions && !exceptions.Contains(player))
+                handleScoreChange(player);
+        }
         public void onJoin(Player player)
         {
             if (invokeOnExceptions && exceptions.Contains(player))
                 handleJoin(player);
             else if (!invokeOnExceptions && !exceptions.Contains(player))
                 handleJoin(player);
+        }
+        public void onPlayerFinished(Player player)
+        {
+            if (invokeOnExceptions && exceptions.Contains(player))
+                handlePlayerFinished(player);
+            else if (!invokeOnExceptions && !exceptions.Contains(player))
+                handlePlayerFinished(player);
         }
         public void onSpawn(Player player)
         {
@@ -82,6 +98,8 @@ namespace partymode
         protected virtual void handleJoin(Player player) { }
         protected virtual void handleEnterRaceCheckpoint(Player player) { }
         protected virtual void handleGamePlayFinish(List<Player> players) { }
+        protected virtual void handlePlayerFinished(Player player) { }
+        protected virtual void handleScoreChange(Player player) { }
     }
     class AutoBegin : PMAttribute
     {
@@ -118,6 +136,57 @@ namespace partymode
             }
         }
     }
+
+    class PlayerFinishedBehaviour : PMAttribute
+    {
+        public EndGameDialog endGameDialog;
+        private PlayMode currentMode;
+        public PlayerFinishedBehaviour(PlayMode mode)
+        {
+            currentMode = mode;
+            endGameDialog = new EndGameDialog();
+        }
+        List<Player> finishedPlayers = new List<Player>();
+        protected override void handleStart(List<Player> players)
+        {
+            finishedPlayers.Clear();
+            endGameDialog.hideToAll();
+        }
+        protected override void handleSpawn(Player player)
+        {
+            if ((currentMode.currentState == PlayMode.PlayModeState.BEGAN && finishedPlayers.Contains(player)) || 
+                currentMode.currentState==PlayMode.PlayModeState.FINISHED)
+                currentMode.SetupPlayerAfterEliminated(player);
+        }
+        protected override void handleFinish(List<Player> players)
+        {
+            endGameDialog.hideToAll();
+        }
+        protected override void handlePlayerFinished(Player player)
+        {
+            if (finishedPlayers.Contains(player)) return;
+            finishedPlayers.Add(player);
+            if(currentMode.currentState==PlayMode.PlayModeState.BEGAN)
+            {
+                currentMode.SetupPlayerAfterPlayModeStop(player);
+                endGameDialog.refreshData();
+                endGameDialog.show(player);
+            }
+        }
+        protected override void handleGamePlayFinish(List<Player> players) 
+        {
+            var sortedPlayers = GameMode.GetPlayersSortedScore();
+            for(int i=0; i< sortedPlayers.Count; i++)
+            {
+                var player = sortedPlayers[i];
+                player.Score = GameMode.getPointsFromPlace(i);
+                player.infoDialog.addToOverallScore(player.Score);
+                currentMode.SetupPlayerAfterPlayModeStop(player);
+            }
+            endGameDialog.showToAll();
+        }
+    }
+
     class OverTimeReward : PMAttribute
     {
         System.Timers.Timer rewardTimer;
@@ -159,6 +228,113 @@ namespace partymode
             rewardTimer.Stop();
         }
     }
+
+    class StopGameRules : PMAttribute
+    {
+        System.Timers.Timer timeLimitTimer;
+        System.Timers.Timer halfLimitTimer;
+        System.Timers.Timer oneMinuteTimer;
+        System.Timers.Timer _30secondsTimer;
+        System.Timers.Timer _10secondsTimer;
+
+        int scoreLimit = -1;
+
+        bool stopOnAllFinished = false;
+        List<Player> finishedPlayers = new List<Player>();
+        public enum StopRule
+        {
+            ScoreLimit = 0,
+            TimeLimit = 1,
+            AllFinished = 2,
+            CustomTrigger = 3
+        }
+        PlayMode mode;
+        public StopGameRules(PlayMode mode) : base() {
+            this.mode = mode;
+            timeLimitTimer = new System.Timers.Timer();
+            halfLimitTimer = new System.Timers.Timer();
+            oneMinuteTimer = new System.Timers.Timer();
+            _30secondsTimer = new System.Timers.Timer();
+            _10secondsTimer = new System.Timers.Timer();
+
+            timeLimitTimer.AutoReset = false;
+            halfLimitTimer.AutoReset = false;
+            oneMinuteTimer.AutoReset = false;
+            _30secondsTimer.AutoReset = false;
+            _10secondsTimer.AutoReset = false;
+
+            timeLimitTimer.Elapsed += (p,e)=> mode.StopGamePlay();
+            halfLimitTimer.Elapsed += (p, e) => BasePlayer.GameTextForAll("~w~Zostala ~g~polowa~w~ czasu", 6000, 6);
+            oneMinuteTimer.Elapsed += (p, e) => BasePlayer.GameTextForAll("~w~Zostala ~b~minuta", 6000, 6);
+            _30secondsTimer.Elapsed += (p, e) => BasePlayer.GameTextForAll("~w~Zostalo ~y~30~w~ sekund", 6000, 6);
+            _10secondsTimer.Elapsed += (p, e) => BasePlayer.GameTextForAll("~w~Zostalo ~r~10~w~ sekund", 8000, 6);
+        }
+
+        public void addRule(StopRule rule, int value)
+        {
+            if(rule==StopRule.ScoreLimit)
+            {
+                scoreLimit = value;
+            }
+            else if(rule==StopRule.TimeLimit) {
+                timeLimitTimer.Interval = value;
+                halfLimitTimer.Interval = value / 2;
+                oneMinuteTimer.Interval = Math.Abs(value-60000);
+                _30secondsTimer.Interval = Math.Abs(value-30000);
+                _10secondsTimer.Interval = Math.Abs(value-10000);
+                timeLimitTimer.Start();
+                halfLimitTimer.Start();
+                oneMinuteTimer.Start();
+                _30secondsTimer.Start();
+                _10secondsTimer.Start();
+            }
+            else if (rule==StopRule.AllFinished)
+            {
+                stopOnAllFinished = true;
+            }
+        }
+        protected override void handleScoreChange(Player player)
+        {
+            if (scoreLimit < 0) return;
+            else if(scoreLimit > 0 && player.Score >= scoreLimit)
+                mode.StopGamePlay();
+            scoreLimit = -1;
+            timeLimitTimer.Stop();
+            halfLimitTimer.Stop();
+            oneMinuteTimer.Stop();
+            _30secondsTimer.Stop();
+            _10secondsTimer.Stop();
+        }
+        protected override void handlePlayerFinished(Player player)
+        {
+            if (!stopOnAllFinished || finishedPlayers.Contains(player)) return;
+            finishedPlayers.Add(player);
+            foreach(var pl in GameMode.GetPlayers())
+                if (!finishedPlayers.Contains(pl)) 
+                    return;
+            mode.StopGamePlay();
+        }
+        protected override void handleBegin(List<Player> players)
+        {
+            finishedPlayers.Clear();
+        }
+        protected override void handleStart(List<Player> players)
+        {
+            finishedPlayers.Clear();
+        }
+        protected override void handleFinish(List<Player> players)
+        {
+            timeLimitTimer.Stop();
+            halfLimitTimer.Stop();
+            oneMinuteTimer.Stop();
+            _30secondsTimer.Stop();
+            _10secondsTimer.Stop();
+            scoreLimit = -1;
+            stopOnAllFinished = false;
+        }
+    }
+
+
     class WeaponLevel : PMAttribute
     {
         public enum LevelType {
