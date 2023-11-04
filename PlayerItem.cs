@@ -36,6 +36,21 @@ namespace partymode
             name = uniqueName;
             instantiate();
         }
+        static public void clear()
+        {
+            foreach(var item in Instances)
+            {
+                foreach(var pair in item.pickupObjects)
+                {
+                    GameMode.currentPlayMode.DestroyObject(pair.Value.go);
+                    pair.Value.go.Dispose();
+                    pair.Key.Dispose();
+                }
+                item.pfactory.Reset();
+                item.pickupObjects.Clear();
+            }
+            Instances.Clear();
+        }
         void instantiate()
         {
             pfactory = new CustomPickupFactory(
@@ -87,7 +102,7 @@ namespace partymode
             player.GiveWeapon(weaponId, (int)amount);
         }
     }
-    public class WeaponTier
+    /*public class WeaponTier
     {
         Dictionary<ItemWeapon, int> weapons;
         SampSharp.GameMode.Vector3 position;
@@ -104,7 +119,7 @@ namespace partymode
             var weapon = weapons.Keys.ToList()[id];
             var ammo = weapons.Values.ToList()[id];
             var pickup = weapon.Spawn(position, new Vector3(0, 0, 0), ammo);
-            if (respawnTimeMS > 0)
+            *//*if (respawnTimeMS > 0)
             {
                 pickup.PickUp += new EventHandler<PickUpPickupEventArgs>(delegate (Object o, PickUpPickupEventArgs a)
                 {
@@ -117,9 +132,9 @@ namespace partymode
                         Spawn(respawnTimeMS);
                     });
                 });
-            }
+            }*//*
         }
-    }
+    }*/
 
     public static class WeaponItems
     {

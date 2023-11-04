@@ -93,6 +93,11 @@ namespace partymode
             infoDialog = new PlayerDialog(this);
             infoDialog.show(this);
         }
+        public override void OnDisconnected(DisconnectEventArgs e)
+        {
+            base.OnDisconnected(e);
+            GameMode.currentPlayMode.OverwriteDisconnectedBehaviour(this);
+        }
         public void cleanUpTimers()
         {
             foreach (var timer in timers) timer.Stop();
@@ -142,6 +147,11 @@ namespace partymode
         {
             base.OnEnterCheckpoint(e);
             GameMode.currentPlayMode.OverwriteEnterRaceCheckpoint(this);
+        }
+        public override void OnEnterCheckpoint(EventArgs e)
+        {
+            base.OnEnterCheckpoint(e);
+            GameMode.currentPlayMode.OverwriteEnterCheckpoint(this);
         }
         public override void OnDeath(DeathEventArgs e)
         {
@@ -253,7 +263,8 @@ namespace partymode
         }
         public static void GlobalCountdown(int timeInSeconds, string textOnFinish, Action actionOnFinish=null)
         {
-            if(timeInSeconds==0)
+            if (GameMode.currentPlayMode.currentState != PlayMode.PlayModeState.BEGAN) return;
+            if (timeInSeconds==0)
             {
                 GameTextForAll(textOnFinish, 3000, 5);
                 if(actionOnFinish!=null) actionOnFinish.Invoke();

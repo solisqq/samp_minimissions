@@ -26,6 +26,16 @@ namespace partymode
             {
                 GameMode.currentPlayMode.CreateVehicle(vid, ((Player)player).GetInFrontPosition(2, 2), player.Angle + 90, true);
             }
+            [Command("autostarton", PermissionChecker = typeof(AdminPermissionChecker))]
+            private static void AutoStartOn(BasePlayer sender)
+            {
+                GameMode.toggleAutoStart(true);
+            }
+            [Command("autostartoff", PermissionChecker = typeof(AdminPermissionChecker))]
+            private static void AutoStartOff(BasePlayer sender)
+            {
+                GameMode.toggleAutoStart(false);
+            }
             [Command("spawn", PermissionChecker = typeof(AdminPermissionChecker))]
             private static void SpawnCar(BasePlayer sender, int vid)
             {
@@ -82,6 +92,11 @@ namespace partymode
             private static void SetScore(BasePlayer sender, int score)
             {
                 ((Player)sender).SetScore(score);
+            }
+            [Command("scoremult", PermissionChecker = typeof(AdminPermissionChecker))]
+            private static void SetScoreMult(BasePlayer sender, int scoreMult)
+            {
+                GameMode.fastScoreMult = scoreMult;
             }
             [Command("load", PermissionChecker = typeof(AdminPermissionChecker))]
             private static void LoadMap(BasePlayer sender, string mapName)

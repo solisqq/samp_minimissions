@@ -50,6 +50,13 @@ namespace partymode
             else if (!invokeOnExceptions && !exceptions.Contains(player))
                 handleJoin(player);
         }
+        public void onDeath(Player player)
+        {
+            if (invokeOnExceptions && exceptions.Contains(player))
+                handleDeath(player);
+            else if (!invokeOnExceptions && !exceptions.Contains(player))
+                handleDeath(player);
+        }
         public void onPlayerFinished(Player player)
         {
             if (invokeOnExceptions && exceptions.Contains(player))
@@ -63,6 +70,13 @@ namespace partymode
                 handleSpawn(player);
             else if (!invokeOnExceptions && !exceptions.Contains(player))
                 handleSpawn(player);
+        }
+        public void onLeave(Player player)
+        {
+            if (invokeOnExceptions && exceptions.Contains(player))
+                handleLeft(player);
+            else if (!invokeOnExceptions && !exceptions.Contains(player))
+                handleLeft(player);
         }
         public void onEnterRaceCheckpoint(Player player)
         {
@@ -96,6 +110,8 @@ namespace partymode
         protected virtual void handleFinish(List<Player> players) { }
         protected virtual void handleSpawn(Player player) { }
         protected virtual void handleJoin(Player player) { }
+        protected virtual void handleLeft(Player player) { }
+        protected virtual void handleDeath(Player player) { }
         protected virtual void handleEnterRaceCheckpoint(Player player) { }
         protected virtual void handleGamePlayFinish(List<Player> players) { }
         protected virtual void handlePlayerFinished(Player player) { }
@@ -116,7 +132,15 @@ namespace partymode
     }
     class FreezTillBegin : PMAttribute
     {
+        public void addException(Player player) { 
+            exceptions.Add(player);
+        }
         protected override void handleSpawn(Player player)
+        {
+            if (GameMode.currentPlayMode.currentState != PlayMode.PlayModeState.BEGAN)
+                player.ToggleControllable(false);
+        }
+        protected override void handleJoin(Player player)
         {
             if (GameMode.currentPlayMode.currentState != PlayMode.PlayModeState.BEGAN)
                 player.ToggleControllable(false);
@@ -131,9 +155,7 @@ namespace partymode
         protected override void handleBegin(List<Player> players)
         {
             foreach (Player p in players)
-            {
                 p.ToggleControllable(true);
-            }
         }
     }
 
@@ -186,7 +208,6 @@ namespace partymode
             endGameDialog.showToAll();
         }
     }
-
     class OverTimeReward : PMAttribute
     {
         System.Timers.Timer rewardTimer;
@@ -198,6 +219,7 @@ namespace partymode
             bool invokeOnExceptions = false) :
             base(exceptions, invokeOnExceptions)
         {
+            this.condition = condition;
             rewardTimer = new System.Timers.Timer();
             rewardTimer.Interval = intervalMS;
             rewardTimer.Elapsed += addPoints;
@@ -238,6 +260,10 @@ namespace partymode
         System.Timers.Timer _10secondsTimer;
 
         int scoreLimit = -1;
+        int playersLeftLimit = -1;
+        bool waitAfterDeath = false;
+        bool waitAfterConnect = false;
+
 
         bool stopOnAllFinished = false;
         List<Player> finishedPlayers = new List<Player>();
@@ -246,7 +272,10 @@ namespace partymode
             ScoreLimit = 0,
             TimeLimit = 1,
             AllFinished = 2,
-            CustomTrigger = 3
+            CustomTrigger = 3,
+            MinPlayers = 4, 
+            WaitAfterDeath = 5,
+            WaitAfterConnect = 6
         }
         PlayMode mode;
         public StopGameRules(PlayMode mode) : base() {
@@ -270,6 +299,11 @@ namespace partymode
             _10secondsTimer.Elapsed += (p, e) => BasePlayer.GameTextForAll("~w~Zostalo ~r~10~w~ sekund", 8000, 6);
         }
 
+        public bool isFinished(Player player)
+        {
+            return finishedPlayers.Contains(player);
+        }
+
         public void addRule(StopRule rule, int value)
         {
             if(rule==StopRule.ScoreLimit)
@@ -279,50 +313,94 @@ namespace partymode
             else if(rule==StopRule.TimeLimit) {
                 timeLimitTimer.Interval = value;
                 halfLimitTimer.Interval = value / 2;
-                oneMinuteTimer.Interval = Math.Abs(value-60000);
-                _30secondsTimer.Interval = Math.Abs(value-30000);
-                _10secondsTimer.Interval = Math.Abs(value-10000);
-                timeLimitTimer.Start();
-                halfLimitTimer.Start();
-                oneMinuteTimer.Start();
-                _30secondsTimer.Start();
-                _10secondsTimer.Start();
+                oneMinuteTimer.Interval = Math.Abs(value - 60000);
+                _30secondsTimer.Interval = Math.Abs(value - 30000);
+                _10secondsTimer.Interval = Math.Abs(value - 10000);
             }
             else if (rule==StopRule.AllFinished)
             {
                 stopOnAllFinished = true;
             }
+            else if (rule == StopRule.MinPlayers)
+            {
+                playersLeftLimit = value;
+            }
+            else if(rule==StopRule.WaitAfterDeath)
+            {
+                waitAfterDeath = true;
+            }
+            else if (rule == StopRule.WaitAfterConnect)
+            {
+                waitAfterConnect = true;
+            }
+        }
+        protected override void handleJoin(Player player)
+        {
+            if(waitAfterConnect && mode.currentState == PlayMode.PlayModeState.BEGAN) 
+                mode.onPlayerFinished(player);
+        }
+        protected override void handleDeath(Player player)
+        {
+            if (waitAfterDeath)
+            {
+                mode.onPlayerFinished(player);
+            }
+        }
+        public void customRule(Player player)
+        {
+            mode.onPlayerFinished(player);
+        }
+        public void customRule()
+        {
+            mode.StopGamePlay();
         }
         protected override void handleScoreChange(Player player)
         {
             if (scoreLimit < 0) return;
-            else if(scoreLimit > 0 && player.Score >= scoreLimit)
+            else if (scoreLimit > 0 && player.Score >= scoreLimit)
+            {
                 mode.StopGamePlay();
-            scoreLimit = -1;
-            timeLimitTimer.Stop();
-            halfLimitTimer.Stop();
-            oneMinuteTimer.Stop();
-            _30secondsTimer.Stop();
-            _10secondsTimer.Stop();
+                scoreLimit = -1;
+                timeLimitTimer.Stop();
+                halfLimitTimer.Stop();
+                oneMinuteTimer.Stop();
+                _30secondsTimer.Stop();
+                _10secondsTimer.Stop();
+            }
         }
         protected override void handlePlayerFinished(Player player)
         {
-            if (!stopOnAllFinished || finishedPlayers.Contains(player)) return;
+            if (mode.currentState != PlayMode.PlayModeState.BEGAN) return;
+            if (finishedPlayers.Contains(player)) return;
             finishedPlayers.Add(player);
-            foreach(var pl in GameMode.GetPlayers())
+            if (playersLeftLimit >= 0 && GameMode.GetPlayers().Except(finishedPlayers).Count() < playersLeftLimit)
+            {
+                mode.StopGamePlay();
+            }
+            player.DisableCheckpoint();
+            player.DisableRaceCheckpoint();
+            if (!stopOnAllFinished) return;
+            foreach (var pl in GameMode.GetPlayers())
                 if (!finishedPlayers.Contains(pl)) 
                     return;
             mode.StopGamePlay();
         }
         protected override void handleBegin(List<Player> players)
         {
+            if(timeLimitTimer.Interval != halfLimitTimer.Interval) {
+                timeLimitTimer.Start();
+                halfLimitTimer.Start();
+                oneMinuteTimer.Start();
+                _30secondsTimer.Start();
+                _10secondsTimer.Start();
+            }
             finishedPlayers.Clear();
         }
         protected override void handleStart(List<Player> players)
         {
             finishedPlayers.Clear();
         }
-        protected override void handleFinish(List<Player> players)
+        protected override void handleGamePlayFinish(List<Player> players)
         {
             timeLimitTimer.Stop();
             halfLimitTimer.Stop();

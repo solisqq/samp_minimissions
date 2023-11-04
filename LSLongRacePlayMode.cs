@@ -58,7 +58,7 @@ namespace partymode
                 new Vector3(2287.5,-1128.3,26.8),
                 new Vector3(2286.8999,-987.5,26.7),
                 new Vector3(2279.6001,-823.5,31),
-                new Vector3(2164.3,-668.20001,51.6)/*,//10
+                new Vector3(2164.3,-668.20001,51.6),//10
                 new Vector3(2033.8,-546.5,78.9),
                 new Vector3(2040.4,-478.5,73.3),
                 new Vector3(2034.7,-420.70001,76.4),
@@ -90,16 +90,15 @@ namespace partymode
                 new Vector3(1400.5,-2193,18.9),
                 new Vector3(1399,-2233.3,13.5),
                 new Vector3(1470.9,-2220.3999,13.4),
-                new Vector3(1490.6,-2220.3,13.8)*/
+                new Vector3(1490.6,-2220.3,13.8)
             };
             addAttribute(new FreezTillBegin());
-            addAttribute(new AutoBegin(2));
             var race = new Race(raceData);
             addAttribute(race);
             var finishRules = new StopGameRules(this);
             finishRules.addRule(StopGameRules.StopRule.AllFinished, 1);
             // 6 minutes
-            finishRules.addRule(StopGameRules.StopRule.TimeLimit, 60000*3);
+            finishRules.addRule(StopGameRules.StopRule.TimeLimit, (60000*6) / GameMode.fastScoreMult);
             addAttribute(finishRules);
             race.Finished += Race_Finished;
             foreach (var player in players)
