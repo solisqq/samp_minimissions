@@ -37,16 +37,19 @@ namespace partymode
             /*SELECT 1 FROM samp WHERE username = @username AND password = @password*/
             instance = this;
 #if DB_SQLITE
+            Console.WriteLine(DateTime.Now.ToString("MM.yy hh:mm:ss") + ": connecting to SQLiteDB");
             connection = new SQLiteConnection("Data Source = "+path+";");
             connection.Open();
             if (connection != null && connection.State == ConnectionState.Closed)
             {
-                Console.WriteLine(DateTime.Now.ToString("MM.yy hh:mm:ss") + ": Failed to connect to DB!");
+                Console.WriteLine(DateTime.Now.ToString("MM.yy hh:mm:ss") + ": failed to connect to DB!");
                 System.Threading.Thread.Sleep(9999999);
-            } else Console.WriteLine(DateTime.Now.ToString("MM.yy hh:mm:ss") + ": Connected to DB " + path);
+            } else Console.WriteLine(DateTime.Now.ToString("MM.yy hh:mm:ss") + ": connected to DB " + path);
 #elif DB_POSTGRE
+            Console.WriteLine(DateTime.Now.ToString("MM.yy hh:mm:ss") + ": connecting to PostgresDB");
             var connectionString = "Host=127.0.0.1;Username=postgres;Password=1937555a;Database=samp";
             dataSource = NpgsqlDataSource.Create(connectionString);
+            Console.WriteLine(DateTime.Now.ToString("MM.yy hh:mm:ss") + ": successfully connected to PostgresDB " + path);
 #endif
             loginPlayer = new TCPMsg("auth", this.authenticate);
             infoMsg = new TCPMsg("player_info", this.playerInfo);
