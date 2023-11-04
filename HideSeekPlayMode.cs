@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Timers;
+using static partymode.StopGameRules;
 
 namespace partymode
 {
@@ -12,29 +13,35 @@ namespace partymode
     {
         Timer rewardTimer;
         private Player seeker=null;
+        FreezTillBegin freezeTillBegin;
+        StopGameRules stopRules;
+
+        const int seekerTime = 20000;
+        const int checkpointTime = 10000;
+
         public HideSeekPlayMode() :base("hideseek")
         {
-            rewardTimer = new Timer(1000);
+            rewardTimer = new Timer(5000);
             rewardTimer.Elapsed += HandleReward;
             minimumPlayersCount = 2;
-            scoreLimit = 0;
         }
 
         private void HandleReward(object sender, ElapsedEventArgs e)
         {
             foreach(var player in GameMode.GetPlayers())
             {
+                if (stopRules.isFinished(player)) continue;
                 if (seeker == player)
                 {
-                    player.AddScore(-3);
+                    player.AddScore(-10);
                     if (seeker.Score <= 0)
                     {
                         seeker.SetScore(0);
-                        HandleStopGamePlay();
+                        stopRules.customRule();
                     }
                 } else
                 {
-                    player.Health -= 0.07f;
+                    player.Health -= 0.1f;
                 }
             }
         }
@@ -46,102 +53,105 @@ namespace partymode
             ((Player)killed).SetScore(0);
         }
 
-        public override bool OverwriteSpawnBehaviour(Player player)
-        {
-            /*if (!begin)
-            {
-                base.OverwriteSpawnBehaviour(player);
-                player.ToggleControllable(false);
-                return false;
-            } else
-            {
-                if(spectator.getNonSpectators().Count<=1)
-                {
-                    HandleStopGamePlay();
-                    return true;
-                }
-                TurnOnSpectate(player);
-            }*/
-            return true;
-        }
         protected override void OnEnd(List<Player> players)
         {
-            /*rewardTimer.Stop();
-            allowSeekerMovementCounter = 15;
-            seeker = null;
-            spectator.spectateMapOnly = false;
-            spectator.spectatePlayerOnly = false;
-            foreach (var pl in players)
-                if(pl.IsConnected)
-                    pl.DisableCheckpoint();*/
-
+            rewardTimer.Stop();
+            stopRules = null;
+            freezeTillBegin = null;
+            foreach (var pl in GameMode.GetPlayers())
+            {
+                pl.DisableCheckpoint();
+            }
+        }
+        public override void onPlayerFinished(Player player)
+        {
+            base.onPlayerFinished(player);
+            player.DisableCheckpoint();
         }
         protected override void OnStart(List<Player> players)
         {
-            foreach (var player in players)
-            {
-                player.ToggleControllable(false);
-            }
+            stopRules = new StopGameRules(this);
+            stopRules.addRule(StopGameRules.StopRule.WaitAfterConnect, 1);
+            stopRules.addRule(StopGameRules.StopRule.WaitAfterDeath, 1);
+            stopRules.addRule(StopGameRules.StopRule.MinPlayers, 2);
+            stopRules.addRule(StopGameRules.StopRule.TimeLimit, 60000 * 8);
+            freezeTillBegin = new FreezTillBegin();
+            addAttribute(stopRules);
+            addAttribute(freezeTillBegin);
             GameMode.Instance.ShowPlayerMarkers(SampSharp.GameMode.Definitions.PlayerMarkersMode.Off);
             GameMode.Instance.ShowNameTags(true);
             GameMode.Instance.SetNameTagDrawDistance(10.0f);
         }
         protected override void Begin(List<Player> players)
         {
-            foreach (var player in players)
-            {
-                if(player!=seeker)
-                {
-                    player.ToggleControllable(true);
-                    player.Health = 100;
-                } else player.Health = 60;
-            }
             var ran = new Random();
             seeker = players[ran.Next(players.Count)];
+            freezeTillBegin.addException(seeker);
             seeker.SetScore(2000);
-            BasePlayer.GameTextForAll("~g~"+seeker.Name+" szuka!", 10000, 3);
+            BasePlayer.GameTextForAll("~g~"+seeker.Name+" szuka!", seekerTime, 3);
             var pos = SpawnPositions[newRandomSpawnPosition];
             seeker.Position = new Vector3(pos.X, pos.Y, pos.Z+100);
-            seeker.ToggleControllable(false);
             seeker.GiveWeapon(SampSharp.GameMode.Definitions.Weapon.M4, 1000);
             seeker.GiveWeapon(SampSharp.GameMode.Definitions.Weapon.Sawedoff, 100);
-            Player.GlobalCountdown(10, "Trwa aktywacja checkpointa", SeekerStart);
-            rewardTimer.Start();
+            seeker.ToggleControllable(false);
+            Player.GlobalCountdown(seekerTime/1000, "Trwa aktywacja checkpointa", SeekerStart);
+            GameMode.globalMsg("Ukryj sie!", "" +
+                "Gracz ~g~"+seeker.Name+"~w~ zostal wylosowany jako poszukujacy. " +
+                "Masz czas na ukrycie sie zdala od miejsca spawnu. Po skonczeniu odliczania, " +
+                "gracz poszukujacy bedzie mogl Cie zabic!", seekerTime-1000);
         }
 
         private void SeekerStart()
         {
             if (seeker != null && seeker.IsConnected && seeker.IsAlive)
             {
+                GameMode.globalMsg("Koniec odliczania", "Gracz ~g~" + seeker.Name + "~w~ rozpoczyna poszukiwania. " +
+                "Czas na ukrycie minal. Rozpoczeto odliczanie do aktywacji miejsca zaklepania (checkpoint)...", checkpointTime-1000);
                 seeker.Position = new Vector3(seeker.Position.X, seeker.Position.Y, seeker.Position.Z - 100);
-                Player.GlobalCountdown(10, "Checkpoint aktywowano", ActivateCheckpoint);
+                seeker.ToggleControllable(true);
+                Player.GlobalCountdown(checkpointTime/1000, "Checkpoint aktywowano", ActivateCheckpoint);
+                rewardTimer.Start();
             }
             else
             {
                 BasePlayer.GameTextForAll("~g~" + seeker.Name + " wyszedl z gry!", 10000, 3);
-                HandleStopGamePlay();
+                stopRules.customRule();
             }
+        }
+        public override void OverwriteDisconnectedBehaviour(Player player)
+        {
+            if(player==seeker)
+            {
+                BasePlayer.GameTextForAll("~g~" + seeker.Name + " wyszedl z gry!", 10000, 3);
+                stopRules.customRule();
+            }
+            base.OverwriteDisconnectedBehaviour(player);
         }
         private void ActivateCheckpoint()
         {
+            GameMode.globalMsg("Aktywowano zaklepanie", "Czerwony punkt na mapie (checkpoint) to miejsce zaklepania. " +
+                "Jezeli sie do niego dostaniesz, gracz poszukujacy nie bedzie Cie juz mogl zabic. " +
+                "Zaklep sie, by wygrac!", 20000);
             foreach (var pl in GameMode.GetPlayers())
             {
                 pl.SetCheckpoint(new Vector3(-1140.8, -1170.5, 129.2), 10);
-                if (pl != seeker) pl.EnterCheckpoint += Pl_EnterCheckpoint;
             }
         }
-        private void Pl_EnterCheckpoint(object sender, EventArgs e)
+        public override void OverwriteEnterCheckpoint(Player player)
         {
-            var pl = (Player)sender;
-            pl.SetScore(seeker.Score);
+            base.OverwriteEnterCheckpoint(player);
+            if (player == seeker) return;
+            player.SetScore(seeker.Score);
+            stopRules.customRule(player);
         }
         public override void PlayerScoreChanged(Player player, double newScore)
         {
         }
-        
-        private void HandleStopGamePlay()
+        public override bool isAbleToStart()
         {
-            StopGamePlay();
+            if (GameMode.GetPlayers().Count > 1)
+                return true;
+            return false;
         }
         public override void InitializeStatics()
         {
@@ -286,12 +296,6 @@ namespace partymode
             CreateObject(11326, -1115.1, -1275.1, 131.5, 0, 0, 0);
             CreateObject(11480, -1081, -1274.3, 130.39999, 0, 0, 0);
             CreateObject(18283, -1116.8, -1297.2, 128.2, 0, 0, 0);*/
-        }
-        public override bool isAbleToStart()
-        {
-            if(GameMode.GetPlayers().Count >1)           
-                return true;
-            return false;
         }
     }
 }

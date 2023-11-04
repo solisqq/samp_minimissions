@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using System.Threading;
 
 namespace partymode.Widgets
 {
@@ -16,6 +17,7 @@ namespace partymode.Widgets
         private readonly VerticalAlignment valing;
         private readonly HorizontalAlignment haling;
         public readonly Size size;
+        System.Timers.Timer hideAfterShowTimer = null;
 
         public enum VerticalAlignment
         {
@@ -42,7 +44,7 @@ namespace partymode.Widgets
             redraw();
         }
 
-        public virtual void show(Player player)
+        public virtual void show(Player player, int hideAfter = -1)
         {
             background.show(player);
             foreach (var widget in widgets)
@@ -50,7 +52,16 @@ namespace partymode.Widgets
                 widget.show(player);
             }
             if (clickable) { player.SelectTextDraw(new SampSharp.GameMode.SAMP.Color(64, 255, 136, 250)); }
+            if(hideAfter>0)
+            {
+                hideAfterShowTimer = new System.Timers.Timer();
+                hideAfterShowTimer.Interval = hideAfter;
+                hideAfterShowTimer.Start();
+                hideAfterShowTimer.AutoReset = false;
+                hideAfterShowTimer.Elapsed += (p, e) => { if (player.IsConnected) hide(player); hideAfterShowTimer = null; };
+            }
         }
+
         public virtual void hide(Player player)
         {
             background.hide(player);

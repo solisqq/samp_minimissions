@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Text;
 using partymode.Widgets;
 using SampSharp.GameMode;
+using SampSharp.GameMode.World;
 
 namespace partymode
 {
@@ -55,7 +56,11 @@ namespace partymode
                 textDraw.show(p);
             }*/
         }
-
+        public override void OverwriteKillBehaviour(Player killed, BasePlayer killer)
+        {
+            killed.AddScore(-10);
+            (killer as Player).AddScore(50);
+        }
         protected override void OnEnd(List<Player> players)
         {
             /*foreach (Player p in GameMode.GetPlayers())
@@ -68,7 +73,11 @@ namespace partymode
 
         protected override void OnStart(List<Player> players)
         {
-            addAttribute(new AutoBegin(5));
+            var stopGame = new StopGameRules(this);
+            addAttribute(new OverTimeReward(3000, 2 * GameMode.fastScoreMult, (Player player) => { return (player.IsAlive && player.IsConnected && currentState == PlayModeState.BEGAN); }));
+            stopGame.addRule(StopGameRules.StopRule.ScoreLimit, 1000);
+            stopGame.addRule(StopGameRules.StopRule.TimeLimit, 60000*5);
+            addAttribute(stopGame);
         }
         public override bool isAbleToStart(){ return true; }
     }

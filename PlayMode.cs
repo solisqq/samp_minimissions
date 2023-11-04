@@ -36,6 +36,7 @@ namespace partymode
         protected Abilities.AbilitiesRandomSpawner vAbilitiesSpawner = new Abilities.AbilitiesRandomSpawner();
         protected Abilities.AbilitiesRandomSpawner pAbilitiesSpawner = new Abilities.AbilitiesRandomSpawner();
         public SampSharp.GameMode.Vector3 startRotation { get; private set; }
+        public int autoBegin = 0;
         private System.Timers.Timer beginCountDown;
         private int beginCountDownCounter;
         private int _newRandomSpawnPosition = 0;
@@ -47,8 +48,6 @@ namespace partymode
             } 
         }
         protected int minimumPlayersCount = 0;
-        private double _scoreLimit=-1;
-        public double scoreLimit { get { return _scoreLimit; } set { _scoreLimit = value; } }
         public EventHandler PlayModeFinished;
 
         public PlayMode(String command)
@@ -287,7 +286,9 @@ namespace partymode
             if (playModeInfo["weapons"].ToString().Length > 0)
             {
                 var weaponsData = utils.unpackData(playModeInfo["weapons"].ToString(), 4);
-                ItemWeapon test = WeaponItems.MP5;
+                // DONT FUCKIN TOUCH IT
+                var test = WeaponItems.AK47;
+                //WILL FAIL WITHOUT THIS
                 foreach (var weapon in weaponsData)
                 {
                     try
@@ -299,7 +300,9 @@ namespace partymode
                                 (float)Convert.ToDouble(weapon[3], CultureInfo.InvariantCulture)+0.72),
                             new SampSharp.GameMode.Vector3(0, 0, 0), -1);
                     }
-                    catch (Exception ex) { }
+                    catch (Exception ex) {
+
+                    }
                 }
                 Console.WriteLine(DateTime.Now.ToString("dd.MM hh:mm:ss") + ": Spawned " + weaponsData.Count.ToString() + " weapons.");
             }
@@ -318,6 +321,7 @@ namespace partymode
 
             OnStart(players);
             pmAttributes.Add(new PlayerFinishedBehaviour(this));
+            if (autoBegin > 0) addAttribute(new AutoBegin(autoBegin));
             foreach (var att in pmAttributes) att.onStart(GameMode.GetPlayers());
         }
         
@@ -348,7 +352,8 @@ namespace partymode
         public void OnJoin(Player player)
         {
             GameMode.currentPlayMode.rulesDialog.show(player);
-            player.addTask((p) => GameMode.currentPlayMode.rulesDialog.hide(player), 5000);
+            if(currentState==PlayModeState.BEGAN)
+                player.addTask((p) => GameMode.currentPlayMode.rulesDialog.hide(player), 5000);
         }
         
         public void RequestBegin(List<Player> players, int time)
@@ -367,6 +372,7 @@ namespace partymode
         public void Finish(List<Player> players)
         {
             OnEnd(players);
+            PlayerItem.clear();
             vAbilitiesSpawner.StopSpawning();
             pAbilitiesSpawner.StopSpawning();
             currentState = PlayModeState.FINISHED;
@@ -395,7 +401,12 @@ namespace partymode
         protected abstract void OnStart(List<Player> players);
         protected abstract void OnEnd(List<Player> players);
         public virtual void OverwriteJoinBehaviour(bool begin, Player player) { }
-        public virtual void OverwriteDeathBehaviour(Player player) { }
+        public virtual void OverwriteDeathBehaviour(Player player) {
+            foreach(var att in pmAttributes)
+            {
+                att.onDeath(player);
+            }
+        }
         public virtual bool OverwriteSpawnBehaviour(Player player) {
             foreach (var att in pmAttributes) att.onSpawn(player);
             InitializePlayer(player);
@@ -405,6 +416,7 @@ namespace partymode
             foreach(var att in pmAttributes)
                 att.onEnterRaceCheckpoint(player);
         }
+        public virtual void OverwriteEnterCheckpoint(Player player) { }
         public void SetupPlayerAfterPlayModeStop(Player player)
         {
             SetupPlayerAfterEliminated(player);
@@ -419,6 +431,12 @@ namespace partymode
         }
         public virtual void OverwriteKillBehaviour(Player killed, BasePlayer killer) { }
         public virtual void OverwriteUpdateBehaviour(Player player) { }
+        public virtual void OverwriteDisconnectedBehaviour(Player player) {
+            foreach(var att in pmAttributes)
+            {
+                att.onLeave(player);
+            }
+        }
         public virtual void StopGamePlay()
         {
             currentState = PlayModeState.FINISHED;
@@ -439,7 +457,7 @@ namespace partymode
                 att.onScoreChanged(player);
             }
         }
-        protected virtual void onPlayerFinished(Player player) {
+        public virtual void onPlayerFinished(Player player) {
             foreach(var att in pmAttributes)
             {
                 att.onPlayerFinished(player);

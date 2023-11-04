@@ -37,7 +37,6 @@ namespace partymode
                 player.SetRaceCheckpoint(SampSharp.GameMode.Definitions.CheckpointType.Normal,
                     checkpoints[Math.Min(checkpoints.Count, player.raceCheckpointId)], checkpoints[Math.Min(checkpoints.Count, player.raceCheckpointId+1)], 15.0f);
             }
-            Console.WriteLine(player.raceCheckpointId.ToString() +" "+ checkpoints[player.raceCheckpointId].ToString());
         }
         public virtual void OnRaceFinish(Player player)
         {

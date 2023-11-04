@@ -11,7 +11,6 @@ namespace partymode
     {
         public DerbyPM() : base("derby")
         { 
-            scoreLimit = 2000;
         }
 
         public override void InitializeStatics()
@@ -54,8 +53,12 @@ namespace partymode
         protected override void OnStart(List<Player> players)
         {
             // Reward over time (points added over time)
-            addAttribute(new OverTimeReward(3000, 300, (Player player) => { return (player.IsAlive && player.IsConnected && currentState == PlayModeState.BEGAN); }));
+            addAttribute(new OverTimeReward(3000, 12 * GameMode.fastScoreMult, (Player player) => { return (player.IsAlive && player.IsConnected && currentState == PlayModeState.BEGAN); }));
+            addAttribute(new OverTimeReward(5000, 6 * GameMode.fastScoreMult, (Player player) => { return (player.IsAlive && player.IsConnected && currentState == PlayModeState.BEGAN && player.InAnyVehicle); }));
             addAttribute(new FreezTillBegin());
+            var stopRule = new StopGameRules(this);
+            stopRule.addRule(StopGameRules.StopRule.ScoreLimit, 2000);
+            addAttribute(stopRule);
         }
         protected override void Begin(List<Player> players) {}
         public override bool isAbleToStart()
