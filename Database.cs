@@ -1,18 +1,30 @@
-﻿using System;
+﻿/*#define DB_SQLITE*/
+#define DB_POSTGRE
+
+using System;
 using System.Collections.Generic;
 using System.Text;
+#if DB_SQLITE
 using System.Data.SQLite;
+#elif DB_POSTGRE
+using Npgsql;
+#endif
 using System.Data.Common;
 using System.Data;
 using System.Text.Json;
 using System.Linq;
 using SampSharp.GameMode.Definitions;
+using System.Data.SQLite;
 
 namespace partymode
 {
     internal class Database
     {
+#if DB_SQLITE
         SQLiteConnection connection;
+#elif DB_POSTGRE
+        NpgsqlDataSource dataSource;
+#endif
         TCPMsg loginPlayer;
         TCPMsg infoMsg;
         TCPMsg changeSkinMsg;
@@ -24,15 +36,18 @@ namespace partymode
         public Database(string path) {
             /*SELECT 1 FROM samp WHERE username = @username AND password = @password*/
             instance = this;
+#if DB_SQLITE
             connection = new SQLiteConnection("Data Source = "+path+";");
             connection.Open();
             if (connection != null && connection.State == ConnectionState.Closed)
             {
                 Console.WriteLine(DateTime.Now.ToString("MM.yy hh:mm:ss") + ": Failed to connect to DB!");
                 System.Threading.Thread.Sleep(9999999);
-            }
-            else Console.WriteLine(DateTime.Now.ToString("MM.yy hh:mm:ss") + ": Connected to DB " + path);
-
+            } else Console.WriteLine(DateTime.Now.ToString("MM.yy hh:mm:ss") + ": Connected to DB " + path);
+#elif DB_POSTGRE
+            var connectionString = "Host=127.0.0.1;Username=postgres;Password=1937555a;Database=samp";
+            dataSource = NpgsqlDataSource.Create(connectionString);
+#endif
             loginPlayer = new TCPMsg("auth", this.authenticate);
             infoMsg = new TCPMsg("player_info", this.playerInfo);
             changeSkinMsg = new TCPMsg("change_skin", this.setSkin);
@@ -93,11 +108,15 @@ namespace partymode
                     keyvaluesString = pair.Key+"=" + pair.Value.ToString()+",";
                 if (keyvaluesString.Length == 0) return false;
                 keyvaluesString = keyvaluesString.Remove(keyvaluesString.Length-1,1);
+#if DB_SQLITE
                 SQLiteCommand command = new SQLiteCommand(connection);
                 command.CommandText = "UPDATE " + table + " SET "+ keyvaluesString + " WHERE "+whereKey+" = @name;";
+#elif DB_POSTGRE
+                var command = dataSource.CreateCommand("UPDATE " + table + " SET " + keyvaluesString + " WHERE " + whereKey + " = @name;");
+#endif
                 Console.WriteLine(command.CommandText);
                 command.Parameters.AddWithValue("@name", whereValue);
-                SQLiteDataReader result = command.ExecuteReader();
+                command.ExecuteReader();
                 return true;
             } catch (Exception ex)
             {
@@ -120,11 +139,15 @@ namespace partymode
             Dictionary<string, object> toRet = new Dictionary<string, object>();
             try
             {
-                SQLiteCommand command = new SQLiteCommand(connection);
                 string keysString = string.Join(',', keys.Select(x => x));
+#if DB_SQLITE
+                SQLiteCommand command = new SQLiteCommand(connection);
                 command.CommandText = "SELECT " + keysString + " FROM " + table + " WHERE "+ whereKey + " = @value;";
+#elif DB_POSTGRE
+                var command = dataSource.CreateCommand("SELECT " + keysString + " FROM " + table + " WHERE " + whereKey + " = @value;");
+#endif
                 command.Parameters.AddWithValue("@value", whereValue);
-                SQLiteDataReader result = command.ExecuteReader();
+                var result = command.ExecuteReader();
 
                 if (result.Read())
                 {
@@ -193,9 +216,12 @@ namespace partymode
             {
                 string username = data.GetProperty("login").ToString();
                 string password = data.GetProperty("password").ToString();
-                SQLiteCommand command = new SQLiteCommand(connection);
+#if DB_SQLITE
+                var command = new SQLiteCommand(connection);
                 command.CommandText = "SELECT 1 FROM "+ this.playerTable + " WHERE name = @name AND password = @pass;";
-                
+#elif DB_POSTGRE
+                var command = dataSource.CreateCommand("SELECT 1 FROM " + this.playerTable + " WHERE name = @name AND password = @pass;");
+#endif
                 command.Parameters.AddWithValue("@name", username);
                 command.Parameters.AddWithValue("@pass", password);
                 object result = command.ExecuteScalar();
