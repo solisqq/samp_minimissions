@@ -18,18 +18,20 @@ namespace partymode
             string pathspaths = "G:/Solivision/vps/samp/paths.json";
             if (System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             {
-                Console.WriteLine("WINDOWS");
+                Console.WriteLine(DateTime.Now.ToString("MM.yy hh:mm:ss") + ": running server on Linux.");
                 pathspaths = "/home/solis/solivision/samp/paths.json";
-            }
-            
+            } else Console.WriteLine(DateTime.Now.ToString("MM.yy hh:mm:ss") + ": running server on Windows.");
+
             using (StreamReader r = new StreamReader(pathspaths))
             {
                 string raw = r.ReadToEnd();
                 JsonDocument json = JsonDocument.Parse(raw);
                 paths = json.RootElement;
+                Console.WriteLine(DateTime.Now.ToString("MM.yy hh:mm:ss") + ": reading configuration at "+pathspaths);
             }
             string dbpath = paths.GetProperty("global").GetProperty("database").ToString();
             Database db = new Database(dbpath);
+
             new GameModeBuilder()
                 .Use<GameMode>()
                 .Run();
