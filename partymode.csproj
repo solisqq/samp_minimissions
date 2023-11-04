@@ -56,7 +56,8 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="SampSharp.GameMode" Version="0.9.0" />
+        <PackageReference Include="Npgsql" Version="7.0.6" />
+        <PackageReference Include="SampSharp.GameMode" Version="0.10.1" />
         <PackageReference Include="System.Data.SQLite" Version="1.0.118" />
     </ItemGroup>
 

@@ -359,13 +359,7 @@ namespace partymode
             if (scoreLimit < 0) return;
             else if (scoreLimit > 0 && player.Score >= scoreLimit)
             {
-                mode.StopGamePlay();
-                scoreLimit = -1;
-                timeLimitTimer.Stop();
-                halfLimitTimer.Stop();
-                oneMinuteTimer.Stop();
-                _30secondsTimer.Stop();
-                _10secondsTimer.Stop();
+                handleFinish(GameMode.GetPlayers());
             }
         }
         protected override void handlePlayerFinished(Player player)
@@ -401,6 +395,10 @@ namespace partymode
             finishedPlayers.Clear();
         }
         protected override void handleGamePlayFinish(List<Player> players)
+        {
+            handleFinish(players);
+        }
+        protected override void handleFinish(List<Player> players)
         {
             timeLimitTimer.Stop();
             halfLimitTimer.Stop();
